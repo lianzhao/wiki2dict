@@ -1,17 +1,150 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Wiki2Dict.Core;
 
 namespace Wiki2Dict.Wiki
 {
     public class Wiki : IWiki
     {
-        public Task<IEnumerable<DictEntry>> GetEntriesAsync()
+        private readonly HttpClient _httpClient;
+
+        private readonly IDictEntryAction _furtherAction;
+
+        public Wiki(HttpClient httpClient, IDictEntryAction furtherAction = null)
         {
-            throw new NotImplementedException();
+            _httpClient = httpClient;
+            _furtherAction = furtherAction;
         }
+
+        public async Task<IEnumerable<DictEntry>> GetEntriesAsync()
+        {
+            var redirectsQuery = await GetAllRedirectsAsync().ConfigureAwait(false);
+            var redirects =
+                redirectsQuery.Select(r => new {RedirectFrom = r.title, RedirectTo = r.links.FirstOrDefault()?.title})
+                    .Where(r => !string.IsNullOrEmpty(r.RedirectTo))
+                    .GroupBy(r => r.RedirectTo);
+            var langlinksQuery = await GetAllLanglinksAsync().ConfigureAwait(false);
+            var pages =
+                langlinksQuery.Select(p => new {Title = p.title, Lang = p.langlinks.FirstOrDefault()?._})
+                    .Where(p => !string.IsNullOrEmpty(p.Lang));
+
+            var entries = pages.Join(redirects, page => page.Title, redirect => redirect.Key,
+                    (page, redirect) => new DictEntry
+                    {
+                        Key = page.Lang,
+                        AlternativeKeys =
+                            redirect.Where(r => r.RedirectTo != page.Title).Select(r => r.Info.title).ToList(),
+                        Value = page.Info.title,
+                    }).ToList();
+
+            if (_furtherAction != null)
+            {
+                await _furtherAction.InvokeAsync(_httpClient, entries).ConfigureAwait(false);
+            }
+
+            return entries.AsEnumerable();
+        }
+
+        private async Task<IEnumerable<Page>> GetAllLanglinksAsync()
+        {
+            return await GetAllPagesAsync(async gapcontinue => await GetLanglinksAsync(gapcontinue).ConfigureAwait(false));
+        }
+
+        private async Task<IEnumerable<Page>> GetAllRedirectsAsync()
+        {
+            return await GetAllPagesAsync(async gapcontinue => await GetRedirectsAsync(gapcontinue).ConfigureAwait(false));
+        }
+
+        private static async Task<IEnumerable<Page>> GetAllPagesAsync(Func<string, Task<QueryResponse>> getPagesFunc)
+        {
+            var rv = Enumerable.Empty<Page>();
+            string gapcontinue = null;
+            while (true)
+            {
+                var response = await getPagesFunc(gapcontinue).ConfigureAwait(false);
+                gapcontinue = response._continue.gapcontinue;
+                rv = rv.Concat(response.query.pages.Values);
+                if (string.IsNullOrEmpty(gapcontinue))
+                {
+                    break;
+                }
+            }
+            return rv;
+        }
+
+        private async Task<QueryResponse> GetLanglinksAsync(string gapcontinue)
+        {
+            var requestUrl =
+                "api.php?action=query&generator=allpages&gapnamespace=0&gaplimit=max&lllimit=max&gapfilterredir=nonredirects&gapfilterlanglinks=withlanglinks&lllang=en&prop=langlinks&format=json&continue=";
+            return await GetPagesAsync(requestUrl, gapcontinue).ConfigureAwait(false);
+        }
+
+        private async Task<QueryResponse> GetRedirectsAsync(string gapcontinue)
+        {
+            var requestUrl =
+                "api.php?action=query&generator=allpages&gapnamespace=0&gaplimit=max&pllimit=max&gapfilterredir=redirects&prop=links&format=json&continue=";
+            return await GetPagesAsync(requestUrl, gapcontinue).ConfigureAwait(false);
+        }
+
+        private async Task<QueryResponse> GetPagesAsync(string requestUrl, string gapcontinue)
+        {
+            if (!string.IsNullOrEmpty(gapcontinue))
+            {
+                requestUrl = $"{requestUrl}gapcontinue||&gapcontinue={gapcontinue}";
+            }
+
+            var response = await _httpClient.GetAsync(requestUrl);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return JsonConvert.DeserializeObject<QueryResponse>(json);
+        }
+    }
+
+
+    public class QueryResponse
+    {
+        [JsonProperty("continue")]
+        public Continue _continue { get; set; }
+        public Query query { get; set; }
+    }
+
+    public class Continue
+    {
+        public string gapcontinue { get; set; }
+        [JsonProperty("continue")]
+        public string _continue { get; set; }
+    }
+
+    public class Query
+    {
+        public IDictionary<string, Page> pages { get; set; }
+    }
+
+    public class Page
+    {
+        public int pageid { get; set; }
+        public int ns { get; set; }
+        public string title { get; set; }
+        public string extract { get; set; }
+        public Link[] links { get; set; }
+        public Langlink[] langlinks { get; set; }
+    }
+
+    public class Link
+    {
+        public int ns { get; set; }
+        public string title { get; set; }
+    }
+
+    public class Langlink
+    {
+        public string lang { get; set; }
+        [JsonProperty("*")]
+        public string _ { get; set; }
     }
 }
