@@ -38,8 +38,8 @@ namespace Wiki2Dict.Wiki
                     {
                         Key = page.Lang,
                         AlternativeKeys =
-                            redirect.Where(r => r.RedirectTo != page.Title).Select(r => r.Info.title).ToList(),
-                        Value = page.Info.title,
+                            redirect.Where(r => r.RedirectTo != page.Title).Select(r => r.RedirectFrom).ToList(),
+                        Value = page.Title,
                     }).ToList();
 
             if (_furtherAction != null)
