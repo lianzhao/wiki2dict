@@ -1,10 +1,5 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Autofac;
-using LinqToWiki;
-using LinqToWiki.Generated;
 using Wiki2Dict.Core;
 
 namespace Wiki2Dict

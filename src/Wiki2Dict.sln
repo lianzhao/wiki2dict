@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wiki2Dict", "Wiki2Dict\Wiki
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wiki2Dict.Wiki", "Wiki2Dict.Wiki\Wiki2Dict.Wiki.csproj", "{103F47DD-812C-4E14-9436-CFA1D4D0073E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wiki2Dict.LinqToWiki", "Wiki2Dict.LinqToWiki\Wiki2Dict.LinqToWiki.csproj", "{8E687D0D-0F09-4F7D-B168-CA6FFCCCF821}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{103F47DD-812C-4E14-9436-CFA1D4D0073E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{103F47DD-812C-4E14-9436-CFA1D4D0073E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{103F47DD-812C-4E14-9436-CFA1D4D0073E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E687D0D-0F09-4F7D-B168-CA6FFCCCF821}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E687D0D-0F09-4F7D-B168-CA6FFCCCF821}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E687D0D-0F09-4F7D-B168-CA6FFCCCF821}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E687D0D-0F09-4F7D-B168-CA6FFCCCF821}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
