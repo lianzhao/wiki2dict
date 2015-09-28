@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Autofac;
 using Wiki2Dict.Core;
+using Wiki2Dict.Wiki;
 
 namespace Wiki2Dict
 {
@@ -20,7 +21,9 @@ namespace Wiki2Dict
                 var baseAddr = "http://coppermind.huiji.wiki/";
                 var builder = new ContainerBuilder();
                 builder.Register(ctx => new HttpClient() {BaseAddress = new Uri(baseAddr)}).InstancePerDependency();
-                builder.Register(ctx => new Wiki.Wiki(ctx.Resolve<HttpClient>()))
+                builder.RegisterType<GetDescriptionAction>().AsImplementedInterfaces().InstancePerDependency();
+                builder.Register(
+                    ctx => new Wiki.Wiki(ctx.Resolve<HttpClient>(), ctx.ResolveOptional<IDictEntryAction>()))
                     .AsImplementedInterfaces()
                     .InstancePerDependency();
 
