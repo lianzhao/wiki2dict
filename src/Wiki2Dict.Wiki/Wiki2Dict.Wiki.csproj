@@ -39,7 +39,13 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Continue.cs" />
     <Compile Include="IDictEntryAction.cs" />
+    <Compile Include="Langlink.cs" />
+    <Compile Include="Link.cs" />
+    <Compile Include="Page.cs" />
+    <Compile Include="Query.cs" />
+    <Compile Include="QueryResponse.cs" />
     <Compile Include="Wiki.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

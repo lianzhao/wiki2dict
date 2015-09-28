@@ -104,47 +104,4 @@ namespace Wiki2Dict.Wiki
             return JsonConvert.DeserializeObject<QueryResponse>(json);
         }
     }
-
-
-    public class QueryResponse
-    {
-        [JsonProperty("continue")]
-        public Continue _continue { get; set; }
-        public Query query { get; set; }
-    }
-
-    public class Continue
-    {
-        public string gapcontinue { get; set; }
-        [JsonProperty("continue")]
-        public string _continue { get; set; }
-    }
-
-    public class Query
-    {
-        public IDictionary<string, Page> pages { get; set; }
-    }
-
-    public class Page
-    {
-        public int pageid { get; set; }
-        public int ns { get; set; }
-        public string title { get; set; }
-        public string extract { get; set; }
-        public Link[] links { get; set; }
-        public Langlink[] langlinks { get; set; }
-    }
-
-    public class Link
-    {
-        public int ns { get; set; }
-        public string title { get; set; }
-    }
-
-    public class Langlink
-    {
-        public string lang { get; set; }
-        [JsonProperty("*")]
-        public string _ { get; set; }
-    }
 }
