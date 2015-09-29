@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Autofac;
 using Wiki2Dict.Core;
+using Wiki2Dict.Kindle;
 using Wiki2Dict.Wiki;
 
 namespace Wiki2Dict
@@ -26,6 +27,13 @@ namespace Wiki2Dict
                     ctx => new Wiki.Wiki(ctx.Resolve<HttpClient>(), ctx.ResolveOptional<IDictEntryAction>()))
                     .AsImplementedInterfaces()
                     .InstancePerDependency();
+                builder.RegisterInstance(new DictConfig
+                {
+                    FilePath = @"..\..\..\..\dist\dict.html",
+                    TemplateFilePath = @"..\..\..\..\resources\knidle_dict_template.html",
+                    EntryTemplateFilePath = @"..\..\..\..\resources\knidle_dict_entry_template.html",
+                }).SingleInstance();
+                builder.RegisterType<Dict>().AsImplementedInterfaces().SingleInstance();
 
                 var container = builder.Build();
 

@@ -48,7 +48,19 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.FileSystem.4.0.0\lib\net46\System.IO.FileSystem.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.FileSystem.Primitives, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.FileSystem.Primitives.4.0.0\lib\net46\System.IO.FileSystem.Primitives.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Reflection.TypeExtensions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reflection.TypeExtensions.4.0.0\lib\net46\System.Reflection.TypeExtensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -70,6 +82,10 @@
     <ProjectReference Include="..\Wiki2Dict.Core\Wiki2Dict.Core.csproj">
       <Project>{611A44A3-7F9D-4E92-B0FB-BCA59F5B543D}</Project>
       <Name>Wiki2Dict.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Wiki2Dict.Kindle\Wiki2Dict.Kindle.csproj">
+      <Project>{9B5540A6-2EF8-45B9-8F47-6BE0FD69DD3A}</Project>
+      <Name>Wiki2Dict.Kindle</Name>
     </ProjectReference>
     <ProjectReference Include="..\Wiki2Dict.Wiki\Wiki2Dict.Wiki.csproj">
       <Project>{103F47DD-812C-4E14-9436-CFA1D4D0073E}</Project>

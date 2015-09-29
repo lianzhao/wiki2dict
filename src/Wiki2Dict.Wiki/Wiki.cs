@@ -47,7 +47,7 @@ namespace Wiki2Dict.Wiki
                 await _furtherAction.InvokeAsync(_httpClient, entries).ConfigureAwait(false);
             }
 
-            return entries.AsEnumerable();
+            return entries.OrderBy(e => e.Key);
         }
 
         private async Task<IEnumerable<Page>> GetAllLanglinksAsync()

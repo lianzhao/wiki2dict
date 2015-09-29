@@ -1,0 +1,38 @@
+
+		<idx:entry scriptable="yes">
+			<!-- 锚定单词 do -->
+			<idx:orth value="@orth">
+				<!--
+					下面这些都是单词 do 的词形变化，当选取这些单词的时候都显示
+					do 的释义。如果单词只有一种形态，可以不添加<idx:infl></idx:infl>区块。
+				-->
+				<idx:infl>
+					@infl
+				</idx:infl>
+			</idx:orth>
+			<!--
+				显示单词 do 的第一种解释，可以对其显示做一些简单的样式改变，
+				如加粗<b>、上标<sup>。
+				没有相关单词 <word> 标签内可不加 homo_no="1"、homo_no="2"。
+			-->
+			<b><word>@word</word></b>
+			<br/><!-- 换行 -->
+			<!-- 单词音标 -->
+			<phonetic>@phonetic</phonetic>
+			<!-- 单词释义 -->
+			<category>
+				<!-- 词性，同样可以进行一些简单的样式改变，如加粗<b>、斜体<i> -->
+				<cat>@cat</cat>
+				<br/>
+				<!-- do 的第 1 条释义 -->
+				<sense>
+					<!-- 标号 -->
+					<b></b>
+					<!-- 含义 -->
+					<description>@description</description>
+					<!-- 示例 -->
+				</sense>
+				<br/>
+			</category>
+		</idx:entry>
+		<hr/>

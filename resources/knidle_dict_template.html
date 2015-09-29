@@ -1,0 +1,91 @@
+<html>
+ 
+<head>
+	<!-- 指定文件编码为 UTF-8 -->
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+</head>
+ 
+<body>
+
+	<div>
+		<!-- 添加封面图片，注意确保路径正确 -->
+ 
+	</div>
+
+	<mbp:pagebreak/><!-- 分页符。以上为第 1 页。 -->
+ 
+		<!-- 字典扉页。不需要也可以忽略这一块内容 -->
+		<p>《红铜智库字典》</p>
+		<br/>
+		<p>这里可以撰写字典介绍。</p>
+		<br/>
+		<p><a href="http://coppermind.huiji.wiki/wiki/%E7%BA%A2%E9%93%9C%E6%99%BA%E5%BA%93%E4%B8%AD%E6%96%87%E7%BB%B4%E5%9F%BA:%E7%89%88%E6%9D%83">版权信息</a></p>
+
+	<mbp:pagebreak/><!-- 分页符。以上为第 2 页。 -->
+
+	<mbp:pagebreak/><!-- 分页符。以上为第 3 页。 -->
+
+	<!-- 起始位置标记 -->
+	<a id="filepos1" />
+ 
+	<!--
+		第 1 个分组。
+		可以把单词贵在一类。比如 a 开头的为一组，则把所有 a 开头
+		的单词用 <mbp:frameset> ... </mbp:frameset> 包裹起来。
+	-->
+	<mbp:frameset>
+		<hr/>
+		<!-- 词条块 -->
+		@entries
+			<!-- 锚定单词 do -->
+			<idx:orth value="Jasnah Kholin">
+				<!--
+					下面这些都是单词 do 的词形变化，当选取这些单词的时候都显示
+					do 的释义。如果单词只有一种形态，可以不添加<idx:infl></idx:infl>区块。
+				-->
+				<idx:infl>
+					<idx:iform name="" value="Jasnah" />
+				</idx:infl>
+			</idx:orth>
+			<!--
+				显示单词 do 的第一种解释，可以对其显示做一些简单的样式改变，
+				如加粗<b>、上标<sup>。
+				没有相关单词 <word> 标签内可不加 homo_no="1"、homo_no="2"。
+			-->
+			<b><word>Jasnah Kholin</word></b>
+			<br/><!-- 换行 -->
+			<!-- 单词音标 -->
+			<phonetic><a href="https://en.wikipedia.org/wiki/Help:IPA" class="extiw" title="wikipedia:Help:IPA">[ˈjas·nɐ xoˈlɪn]</a><br><a href="https://en.wikipedia.org/wiki/Wikipedia:Pronunciation_respelling_key" class="extiw" title="wikipedia:Wikipedia:Pronunciation respelling key"><b>YASS</b>-nah kho-<b>LIN</b></a></phonetic>
+			<!-- 单词释义 -->
+			<category>
+				<!-- 词性，同样可以进行一些简单的样式改变，如加粗<b>、斜体<i> -->
+				<cat></cat>
+				<br/>
+				<!-- do 的第 1 条释义 -->
+				<sense>
+					<!-- 标号 -->
+					<b>1.</b>
+					<!-- 含义 -->
+					<description><p><b>迦熙娜·寇林</b>（<b><a rel="nofollow" target="_blank" class="external text" href="http://coppermind.net/wiki/Jasnah_Kholin">Jasnah Kholin</a></b>）是<a href="/wiki/%E9%A3%93%E5%85%89%E5%BF%97" title="飓光志">《飓光志》</a>中<a href="/wiki/%E9%98%BF%E5%8B%92%E6%96%AF%E5%8D%A1" title="阿勒斯卡">阿勒斯卡</a>先王<a href="/wiki/%E8%BF%A6%E7%BB%B4%E6%8B%89%E5%B0%94%C2%B7%E5%AF%87%E6%9E%97" title="迦维拉尔·寇林">迦维拉尔·寇林</a>之女、现任国王<a href="/wiki/%E8%89%BE%E5%B0%94%E9%9C%8D%E5%8D%A1" title="艾尔霍卡" class="mw-redirect">艾尔霍卡</a>的姐姐、轩亲王<a href="/wiki/%E8%BE%BE%E5%8A%9B%E6%8B%BF%C2%B7%E5%AF%87%E6%9E%97" title="达力拿·寇林">达力拿·寇林</a>的侄女。
+</p></description>
+					<!-- 示例 -->
+				</sense>
+				<br/>
+			</category>
+		</idx:entry>
+		<hr/>
+	</mbp:frameset>
+
+	<mbp:pagebreak/><!-- 分页符。以上为第 4 页。 -->
+
+	<!-- 第 2 个分组。 -->
+	<mbp:frameset>
+		<hr/>
+			<!-- 内容格式同第 1 个分组。 -->
+		<hr/>
+	</mbp:frameset>
+
+	<mbp:pagebreak/><!-- 分页符。以上为第 5 页。 -->
+
+</body>
+</html>
