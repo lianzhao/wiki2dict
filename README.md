@@ -6,3 +6,7 @@ Generate dictionary from wiki
 
 # How to use kindle dict
 http://kindlefere.com/dict
+
+#How it works
+1. Generate a [html file](/dist/dict.html) from wiki data
+2. Use [KindleGen](http://www.amazon.com/gp/feature.html?ie=UTF8&docId=1000765211) to generate the [dict file](/dist/dict.mobi), [step by step](http://kindlefere.com/post/178.html)
