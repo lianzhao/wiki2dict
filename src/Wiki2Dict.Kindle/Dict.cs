@@ -8,37 +8,6 @@ using Wiki2Dict.Core;
 
 namespace Wiki2Dict.Kindle
 {
-    public class Entry
-    {
-        public string orth { get; set; }
-
-        public string infl { get; set; }
-
-        public string word { get; set; }
-
-        public string phonetic { get; set; }
-
-        public string cat { get; set; }
-
-        public string description { get; set; }
-    }
-
-    public class DictConfig
-    {
-        public DictConfig()
-        {
-            iformFormat = "<idx:iform name=\"\" value=\"{0}\" />";
-        }
-
-        public string FilePath { get; set; }
-
-        public string TemplateFilePath { get; set; }
-
-        public string EntryTemplateFilePath { get; set; }
-
-        public string iformFormat { get; set; }
-    }
-
     public class Dict : IDict
     {
         private readonly DictConfig _config;
