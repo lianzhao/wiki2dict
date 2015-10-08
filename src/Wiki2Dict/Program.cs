@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Autofac;
@@ -29,9 +30,9 @@ namespace Wiki2Dict
                     .InstancePerDependency();
                 builder.RegisterInstance(new DictConfig
                 {
-                    FilePath = @"..\..\dist\dict.html",
-                    TemplateFilePath = @"..\..\resources\knidle_dict_template.html",
-                    EntryTemplateFilePath = @"..\..\resources\knidle_dict_entry_template.html",
+                    FilePath = Path.Combine("..", "..", "dist", "dict.html"),
+                    TemplateFilePath = Path.Combine("..", "..", "resources", "knidle_dict_template.html"),
+                    EntryTemplateFilePath = Path.Combine("..", "..", "resources", "knidle_dict_entry_template.html"),
                 }).SingleInstance();
                 builder.RegisterType<Dict>().AsImplementedInterfaces().SingleInstance();
 
