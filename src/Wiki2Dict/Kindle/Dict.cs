@@ -51,11 +51,12 @@ namespace Wiki2Dict.Kindle
             {
                 throw new InvalidOperationException("Opf template file error.");
             }
-
+            
+            File.Delete(_config.FilePath);
             var entriesXml = string.Join(string.Empty,
                 entries.Select(entry => FormatEntry(entryTemplate, ConvertEntry(entry))));
-            var xml = dictTemplate.Replace("@entries", entriesXml);
-            using (var sw = new StreamWriter(new FileStream(_config.FilePath, FileMode.OpenOrCreate)))
+            var xml = dictTemplate.Replace("@entries", entriesXml).Replace("@wikiName", wiki.Name).Replace("@wikiDescription", wiki.Description).Replace("@wikiCopyrightUrl", wiki.CopyrightUrl);
+            using (var sw = new StreamWriter(new FileStream(_config.FilePath, FileMode.Create)))
             {
                 await sw.WriteAsync(xml).ConfigureAwait(false);
             }
@@ -63,7 +64,8 @@ namespace Wiki2Dict.Kindle
             var opf = opfTemplate.Replace("@wikiName", wiki.Name)
                 .Replace("@date", DateTime.Today.ToString("yyyy-MM-dd"));
             var opfFilePath = Path.Combine(_config.OpfFilePath, $"{wiki.Name}_dict.opf");
-            using (var sw = new StreamWriter(new FileStream(opfFilePath, FileMode.OpenOrCreate)))
+            File.Delete(opfFilePath);
+            using (var sw = new StreamWriter(new FileStream(opfFilePath, FileMode.Create)))
             {
                 await sw.WriteAsync(opf).ConfigureAwait(false);
             }
@@ -88,10 +90,10 @@ namespace Wiki2Dict.Kindle
         private static string FormatEntry(string template, Entry entry)
         {
             var rv = template;
-            var properties = typeof (Entry).GetProperties();
+            var properties = typeof(Entry).GetProperties();
             foreach (var property in properties)
             {
-                var value = property.GetGetMethod().Invoke(entry, new object[] {}) as string;
+                var value = property.GetGetMethod().Invoke(entry, new object[] { }) as string;
                 rv = rv.Replace(string.Format("@{0}", property.Name), value);
             }
 
