@@ -41,7 +41,7 @@ namespace Wiki2Dict
                     .InstancePerDependency();
                 builder.RegisterInstance(new DictConfig
                 {
-                    FilePath = Path.Combine("..", "..", "dist", "dict.html"),
+                    FilePath = Path.Combine("..", "..", "resources", "kindle_dict.html"),
                     TemplateFilePath = Path.Combine("..", "..", "resources", "knidle_dict_template.html"),
                     EntryTemplateFilePath = Path.Combine("..", "..", "resources", "knidle_dict_entry_template.html"),
                 }).SingleInstance();

@@ -194,4 +194,5 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
-*/project.lock.json
+**/project.lock.json
+resources/kindle_dict.html
