@@ -54,7 +54,7 @@ namespace Wiki2Dict.Kindle
 
             var entriesXml = string.Join(string.Empty,
                 entries.Select(entry => FormatEntry(entryTemplate, ConvertEntry(entry))));
-            var xml = dictTemplate.Replace("@entries", entriesXml);
+            var xml = dictTemplate.Replace("@entries", entriesXml).Replace("@wikiName", wiki.Name).Replace("@wikiDescription", wiki.Description).Replace("@wikiCopyrightUrl", wiki.CopyrightUrl);
             using (var sw = new StreamWriter(new FileStream(_config.FilePath, FileMode.OpenOrCreate)))
             {
                 await sw.WriteAsync(xml).ConfigureAwait(false);
@@ -88,10 +88,10 @@ namespace Wiki2Dict.Kindle
         private static string FormatEntry(string template, Entry entry)
         {
             var rv = template;
-            var properties = typeof (Entry).GetProperties();
+            var properties = typeof(Entry).GetProperties();
             foreach (var property in properties)
             {
-                var value = property.GetGetMethod().Invoke(entry, new object[] {}) as string;
+                var value = property.GetGetMethod().Invoke(entry, new object[] { }) as string;
                 rv = rv.Replace(string.Format("@{0}", property.Name), value);
             }
 

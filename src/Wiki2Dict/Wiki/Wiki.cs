@@ -28,19 +28,19 @@ namespace Wiki2Dict.Wiki
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             var siteInfo = JsonConvert.DeserializeObject<SiteInfoQueryResponse>(json);
-            return new WikiDescription() {Name = siteInfo.query.general.sitename};
+            return new WikiDescription() { Name = siteInfo.query.general.sitename, Url = _httpClient.BaseAddress.ToString(), CopyrightUrl = $"{_httpClient.BaseAddress.ToString()}wiki/Project:Copyright" };
         }
 
         public async Task<IEnumerable<DictEntry>> GetEntriesAsync()
         {
             var redirectsQuery = await GetAllRedirectsAsync().ConfigureAwait(false);
             var redirects =
-                redirectsQuery.Select(r => new {RedirectFrom = r.title, RedirectTo = r.links.FirstOrDefault()?.title})
+                redirectsQuery.Select(r => new { RedirectFrom = r.title, RedirectTo = r.links.FirstOrDefault()?.title })
                     .Where(r => !string.IsNullOrEmpty(r.RedirectTo))
                     .GroupBy(r => r.RedirectTo);
             var langlinksQuery = await GetAllLanglinksAsync().ConfigureAwait(false);
             var pages =
-                langlinksQuery.Select(p => new {Title = p.title, Lang = p.langlinks.FirstOrDefault()?._})
+                langlinksQuery.Select(p => new { Title = p.title, Lang = p.langlinks.FirstOrDefault()?._ })
                     .Where(p => !string.IsNullOrEmpty(p.Lang));
 
             var entries = pages.Join(redirects, page => page.Title, redirect => redirect.Key,
