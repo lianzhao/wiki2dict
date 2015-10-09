@@ -196,5 +196,7 @@ FakesAssemblies/
 *.opt
 **/project.lock.json
 resources/kindle_dict.html
-resources/kindle_dict.opf
+
 resources/kindle_dict.mobi
+
+*.opf
