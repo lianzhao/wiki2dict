@@ -1,0 +1,10 @@
+﻿{
+  "modules": [
+    {
+      "type": "Wiki2Dict.WikiModule, Wiki2Dict",
+      "parameters": {
+        "baseAddress": "http://coppermind.huiji.wiki/"
+      }
+    }
+  ]
+}

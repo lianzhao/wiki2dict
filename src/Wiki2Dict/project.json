@@ -7,8 +7,11 @@
   "licenseUrl": "",
 
   "dependencies": {
-    "Autofac": "4.0.0-beta7-130",
     "System.Net.Http": "4.0.0",
+    "Microsoft.Framework.Configuration": "1.0.0-beta7",
+    "Microsoft.Framework.Configuration.Json": "1.0.0-beta7",
+    "Autofac": "4.0.0-beta7-130",
+    "Autofac.Configuration": "4.0.0-beta7-252",
     "Newtonsoft.Json": "7.0.1"
   },
 
