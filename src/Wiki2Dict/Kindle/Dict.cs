@@ -17,7 +17,7 @@ namespace Wiki2Dict.Kindle
             _config = config;
         }
 
-        public async Task SaveAsync(IEnumerable<DictEntry> entries)
+        public async Task SaveAsync(WikiDescription wiki, IEnumerable<DictEntry> entries)
         {
             string dictTemplate;
             using (var sr = new StreamReader(new FileStream(_config.TemplateFilePath, FileMode.Open)))
@@ -41,12 +41,30 @@ namespace Wiki2Dict.Kindle
                 throw new InvalidOperationException("Dict entry template file error.");
             }
 
+            string opfTemplate;
+            using (var sr = new StreamReader(new FileStream(_config.OpfTemplateFilePath, FileMode.Open)))
+            {
+                opfTemplate = await sr.ReadToEndAsync().ConfigureAwait(false);
+            }
+
+            if (string.IsNullOrEmpty(opfTemplate))
+            {
+                throw new InvalidOperationException("Opf template file error.");
+            }
+
             var entriesXml = string.Join(string.Empty,
                 entries.Select(entry => FormatEntry(entryTemplate, ConvertEntry(entry))));
             var xml = dictTemplate.Replace("@entries", entriesXml);
             using (var sw = new StreamWriter(new FileStream(_config.FilePath, FileMode.OpenOrCreate)))
             {
                 await sw.WriteAsync(xml).ConfigureAwait(false);
+            }
+
+            var opf = opfTemplate.Replace("@wikiName", wiki.Name)
+                .Replace("@date", DateTime.Today.ToString("yyyy-MM-dd"));
+            using (var sw = new StreamWriter(new FileStream(_config.OpfFilePath, FileMode.OpenOrCreate)))
+            {
+                await sw.WriteAsync(opf).ConfigureAwait(false);
             }
         }
 

@@ -42,17 +42,20 @@ namespace Wiki2Dict
                 builder.RegisterInstance(new DictConfig
                 {
                     FilePath = Path.Combine("..", "..", "resources", "kindle_dict.html"),
+                    OpfFilePath = Path.Combine("..", "..", "resources", "kindle_dict.opf"),
                     TemplateFilePath = Path.Combine("..", "..", "resources", "knidle_dict_template.html"),
                     EntryTemplateFilePath = Path.Combine("..", "..", "resources", "knidle_dict_entry_template.html"),
+                    OpfTemplateFilePath = Path.Combine("..", "..", "resources", "kindle_dict_template.opf"),
                 }).SingleInstance();
                 builder.RegisterType<Dict>().AsImplementedInterfaces().SingleInstance();
 
                 var container = builder.Build();
 
                 var wiki = container.Resolve<IWiki>();
+                var wikiDesc = await wiki.GetDescriptionAsync();
                 var entries = await wiki.GetEntriesAsync().ConfigureAwait(false);
                 var dict = container.Resolve<IDict>();
-                await dict.SaveAsync(entries).ConfigureAwait(false);
+                await dict.SaveAsync(wikiDesc, entries).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

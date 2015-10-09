@@ -21,6 +21,16 @@ namespace Wiki2Dict.Wiki
             _furtherAction = furtherAction;
         }
 
+        public async Task<WikiDescription> GetDescriptionAsync()
+        {
+            var requestUrl = "api.php?action=query&meta=siteinfo&format=json";
+            var response = await _httpClient.GetAsync(requestUrl).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var siteInfo = JsonConvert.DeserializeObject<SiteInfoQueryResponse>(json);
+            return new WikiDescription() {Name = siteInfo.query.general.sitename};
+        }
+
         public async Task<IEnumerable<DictEntry>> GetEntriesAsync()
         {
             var redirectsQuery = await GetAllRedirectsAsync().ConfigureAwait(false);

@@ -9,9 +9,13 @@ namespace Wiki2Dict.Kindle
 
         public string FilePath { get; set; }
 
+        public string OpfFilePath { get; set; }
+
         public string TemplateFilePath { get; set; }
 
         public string EntryTemplateFilePath { get; set; }
+
+        public string OpfTemplateFilePath { get; set; }
 
         public string iformFormat { get; set; }
     }
