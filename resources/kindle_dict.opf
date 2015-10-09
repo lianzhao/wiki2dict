@@ -28,6 +28,6 @@
 	<tours/>
 	<!-- 页面指引 -->
 	<guide>
-		<reference href="dict.html#filepos1" title="Start Reading" type="start"/><!-- 打开起始位置，对应 HTML 文件中的相应 ID -->
+		<reference href="kindle_dict.html#filepos1" title="Start Reading" type="start"/><!-- 打开起始位置，对应 HTML 文件中的相应 ID -->
 	</guide>
 </package>
