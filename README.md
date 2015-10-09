@@ -3,7 +3,7 @@ Generate dictionary from wiki
 
 # How to generate a dictionary for Kindle
 1. Customize target wiki and dictionary template files.
-2. Generate a [html file](/dist/dict.html) from wiki data
+2. Generate a html file from wiki data
 3. Use [KindleGen](http://www.amazon.com/gp/feature.html?ie=UTF8&docId=1000765211) to generate the dict file by yourself. See [Documents](http://kindlefere.com/post/178.html)
 
 ## Customize
