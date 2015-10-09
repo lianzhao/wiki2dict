@@ -42,7 +42,7 @@ namespace Wiki2Dict
                 builder.RegisterInstance(new DictConfig
                 {
                     FilePath = Path.Combine("..", "..", "resources", "kindle_dict.html"),
-                    OpfFilePath = Path.Combine("..", "..", "resources", "kindle_dict.opf"),
+                    OpfFilePath = Path.Combine("..", "..", "resources"),
                     TemplateFilePath = Path.Combine("..", "..", "resources", "knidle_dict_template.html"),
                     EntryTemplateFilePath = Path.Combine("..", "..", "resources", "knidle_dict_entry_template.html"),
                     OpfTemplateFilePath = Path.Combine("..", "..", "resources", "kindle_dict_template.opf"),

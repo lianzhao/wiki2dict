@@ -62,7 +62,8 @@ namespace Wiki2Dict.Kindle
 
             var opf = opfTemplate.Replace("@wikiName", wiki.Name)
                 .Replace("@date", DateTime.Today.ToString("yyyy-MM-dd"));
-            using (var sw = new StreamWriter(new FileStream(_config.OpfFilePath, FileMode.OpenOrCreate)))
+            var opfFilePath = Path.Combine(_config.OpfFilePath, $"{wiki.Name}_dict.opf");
+            using (var sw = new StreamWriter(new FileStream(opfFilePath, FileMode.OpenOrCreate)))
             {
                 await sw.WriteAsync(opf).ConfigureAwait(false);
             }
