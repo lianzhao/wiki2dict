@@ -200,3 +200,5 @@ resources/kindle_dict.html
 resources/kindle_dict.mobi
 
 *.opf
+
+*.mobi
