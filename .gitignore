@@ -198,3 +198,9 @@ FakesAssemblies/
 resources/kindle_dict.html
 
 resources/kindle_dict.mobi
+
+*.opf
+
+*.mobi
+
+src/Wiki2Dict/project.lock.json
