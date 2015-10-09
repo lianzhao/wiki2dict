@@ -202,3 +202,5 @@ resources/kindle_dict.mobi
 *.opf
 
 *.mobi
+
+src/Wiki2Dict/project.lock.json
