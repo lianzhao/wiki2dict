@@ -19,7 +19,7 @@
 	</metadata>
 	<!-- 资源列表 -->
 	<manifest>
-		<item href="dict.html" id="item1" media-type="text/x-oeb1-document"/><!-- HTML 文件 -->
+		<item href="kindle_dict.html" id="item1" media-type="text/x-oeb1-document"/><!-- HTML 文件 -->
 	</manifest>
 	<!-- 骨架文件 -->
 	<spine>
