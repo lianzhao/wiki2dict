@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Wiki2Dict.Core;
@@ -103,15 +102,21 @@ namespace Wiki2Dict.Wiki
 
         private async Task<QueryResponse> GetPagesAsync(string requestUrl, string gapcontinue)
         {
+            Console.WriteLine($"Entering GetPagesAsync");
+            var enterTime = DateTimeOffset.Now;
+
             if (!string.IsNullOrEmpty(gapcontinue))
             {
                 requestUrl = $"{requestUrl}gapcontinue||&gapcontinue={gapcontinue}";
             }
+            Console.WriteLine($"{nameof(requestUrl)}={requestUrl}");
 
             var response = await _httpClient.GetAsync(requestUrl);
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            return JsonConvert.DeserializeObject<QueryResponse>(json);
+            var rv = JsonConvert.DeserializeObject<QueryResponse>(json);
+            Console.WriteLine($"Exiting GetPagesAsync, {(DateTimeOffset.Now - enterTime).TotalSeconds.ToString("F2")} s");
+            return rv;
         }
     }
 }

@@ -16,7 +16,10 @@ namespace Wiki2Dict
     {
         static void Main(string[] args)
         {
+            var enterTime = DateTimeOffset.Now;
+            Console.WriteLine("Start");
             Run(args).Wait();
+            Console.WriteLine($"End, {(DateTimeOffset.Now - enterTime).TotalSeconds.ToString("F2")} s");
         }
 
         private static async Task Run(string[] args)
