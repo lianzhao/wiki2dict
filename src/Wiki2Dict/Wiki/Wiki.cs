@@ -90,12 +90,18 @@ namespace Wiki2Dict.Wiki
 
         private async Task<IEnumerable<Page>> GetAllLanglinksAsync()
         {
-            return await GetAllPagesAsync(async gapcontinue => await GetLanglinksAsync(gapcontinue).ConfigureAwait(false));
+            return
+                await
+                    GetAllPagesAsync(async gapcontinue => await GetLanglinksAsync(gapcontinue).ConfigureAwait(false))
+                        .ConfigureAwait(false);
         }
 
         private async Task<IEnumerable<Page>> GetAllRedirectsAsync()
         {
-            return await GetAllPagesAsync(async gapcontinue => await GetRedirectsAsync(gapcontinue).ConfigureAwait(false));
+            return
+                await
+                    GetAllPagesAsync(async gapcontinue => await GetRedirectsAsync(gapcontinue).ConfigureAwait(false))
+                        .ConfigureAwait(false);
         }
 
         private static async Task<IEnumerable<Page>> GetAllPagesAsync(Func<string, Task<QueryResponse>> getPagesFunc)
@@ -134,7 +140,7 @@ namespace Wiki2Dict.Wiki
                 requestUrl = $"{requestUrl}gapcontinue||&gapcontinue={gapcontinue}";
             }
 
-            var response = await _httpClient.GetAsync(requestUrl, _logger);
+            var response = await _httpClient.GetAsync(requestUrl, _logger).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return JsonConvert.DeserializeObject<QueryResponse>(json);

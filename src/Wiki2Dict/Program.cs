@@ -63,7 +63,7 @@ namespace Wiki2Dict
                 var container = builder.Build();
 
                 var wiki = container.Resolve<IWiki>();
-                var wikiDesc = await wiki.GetDescriptionAsync();
+                var wikiDesc = await wiki.GetDescriptionAsync().ConfigureAwait(false);
                 var entries = await wiki.GetEntriesAsync().ConfigureAwait(false);
                 var dict = container.Resolve<IDict>();
                 await dict.SaveAsync(wikiDesc, entries).ConfigureAwait(false);
