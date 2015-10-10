@@ -11,7 +11,7 @@ namespace Wiki2Dict.Core
 
         public string Key { get; set; }
 
-        public IEnumerable<string> AlternativeKeys { get; set; }
+        public IList<string> AlternativeKeys { get; set; }
 
         public string Value { get; set; }
 

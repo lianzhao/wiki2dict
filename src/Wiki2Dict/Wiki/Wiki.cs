@@ -77,7 +77,7 @@ namespace Wiki2Dict.Wiki
                     redirects.FirstOrDefault(redirect => entry.Value == redirect.Key)?
                         .Where(redirect => redirect.RedirectFrom != entry.Key)
                         .Select(redirect => redirect.RedirectFrom)
-                        .ToArray() ?? new string[] {};
+                        .ToList() ?? new List<string>();
             }
 
             if (_furtherAction != null)
