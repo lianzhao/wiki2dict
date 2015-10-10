@@ -44,7 +44,7 @@ namespace Wiki2Dict.Wiki
                 }
                     )
                     .Where(r => !string.IsNullOrEmpty(r.RedirectTo))
-                    .GroupBy(r => r.RedirectTo);
+                    .GroupBy(r => r.RedirectTo).ToList();
             var langlinksQuery = await GetAllLanglinksAsync().ConfigureAwait(false);
             var pages =
                 langlinksQuery.Select(p =>
@@ -57,14 +57,19 @@ namespace Wiki2Dict.Wiki
                 })
                     .Where(p => !string.IsNullOrEmpty(p.Lang));
 
-            var entries = pages.Join(redirects, page => page.Title, redirect => redirect.Key,
-                    (page, redirect) => new DictEntry
-                    {
-                        Key = page.Lang,
-                        AlternativeKeys =
-                            redirect.Where(r => r.RedirectFrom != page.Lang).Select(r => r.RedirectFrom).ToList(),
-                        Value = page.Title,
-                    }).ToList();
+            var entries = pages.Select(page => new DictEntry
+            {
+                Key = page.Lang,
+                Value = page.Title,
+            }).ToList();
+            foreach (var entry in entries)
+            {
+                entry.AlternativeKeys =
+                    redirects.FirstOrDefault(redirect => entry.Value == redirect.Key)?
+                        .Where(redirect => redirect.RedirectFrom != entry.Key)
+                        .Select(redirect => redirect.RedirectFrom)
+                        .ToArray() ?? new string[] {};
+            }
 
             if (_furtherAction != null)
             {
