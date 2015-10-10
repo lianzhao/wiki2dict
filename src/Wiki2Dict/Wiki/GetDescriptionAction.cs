@@ -28,6 +28,10 @@ namespace Wiki2Dict.Wiki
                 var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 var model = JsonConvert.DeserializeObject<QueryResponse>(json);
                 var description = model.query.pages.Values.FirstOrDefault()?.extract;
+                if (!string.IsNullOrEmpty(description))
+                {
+                    description = $"{description}<br><a href=\"{client.BaseAddress}wiki/{entry.Value}\">读更多...</a>";
+                }
                 entry.Attributes["Description"] = description;
             });
             await Task.WhenAll(tasks).ConfigureAwait(false);
