@@ -6,6 +6,7 @@ using Autofac;
 using Autofac.Configuration;
 using Microsoft.Framework.Configuration;
 using Microsoft.Framework.Configuration.Json;
+using Microsoft.Framework.Logging;
 using Wiki2Dict.Core;
 using Wiki2Dict.Kindle;
 using Wiki2Dict.Wiki;
@@ -37,9 +38,16 @@ namespace Wiki2Dict
                 var builder = new ContainerBuilder();
                 var module = new ConfigurationModule(config.Build());
                 builder.RegisterModule(module);
+                
+                var loggerFactory = new LoggerFactory();
+                loggerFactory.AddConsole(LogLevel.Information);
+                builder.RegisterInstance(loggerFactory).As<ILoggerFactory>().SingleInstance();
+
                 builder.RegisterType<GetDescriptionAction>().AsImplementedInterfaces().InstancePerDependency();
                 builder.Register(
-                    ctx => new Wiki.Wiki(ctx.Resolve<HttpClient>(), ctx.ResolveOptional<IDictEntryAction>()))
+                    ctx =>
+                        new Wiki.Wiki(ctx.Resolve<HttpClient>(), ctx.ResolveOptional<IDictEntryAction>(),
+                            ctx.Resolve<ILoggerFactory>()))
                     .AsImplementedInterfaces()
                     .InstancePerDependency();
                 builder.RegisterInstance(new DictConfig
