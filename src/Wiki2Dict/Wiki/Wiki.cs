@@ -130,7 +130,12 @@ namespace Wiki2Dict.Wiki
         private async Task<QueryResponse> GetRedirectsAsync(string gapcontinue)
         {
             const string requestUrl = "api.php?action=query&generator=allpages&gapnamespace=0&gaplimit=max&pllimit=max&gapfilterredir=redirects&prop=links&format=json&continue=";
-            return await GetPagesAsync(requestUrl, gapcontinue).ConfigureAwait(false);
+            var res = await GetPagesAsync(requestUrl, gapcontinue).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(res._continue.plcontinue))
+            {
+                _logger.LogWarning("plcontinue not null, something may went wrong.");
+            }
+            return res;
         }
 
         private async Task<QueryResponse> GetPagesAsync(string requestUrl, string gapcontinue)
