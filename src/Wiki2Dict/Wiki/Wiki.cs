@@ -112,7 +112,11 @@ namespace Wiki2Dict.Wiki
             {
                 var response = await getPagesFunc(gapcontinue).ConfigureAwait(false);
                 gapcontinue = response._continue?.gapcontinue;
-                rv = rv.Concat(response.query.pages.Values);
+                var pages = response.query?.pages?.Values;
+                if (pages != null)
+                {
+                    rv = rv.Concat(pages);
+                }
                 if (string.IsNullOrEmpty(gapcontinue))
                 {
                     break;
