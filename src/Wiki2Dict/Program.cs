@@ -67,12 +67,16 @@ namespace Wiki2Dict
                 }).SingleInstance();
                 builder.RegisterType<Dict>().AsImplementedInterfaces().SingleInstance();
 
+                var logger = loggerFactory.CreateLogger(typeof (Program).FullName);
                 var container = builder.Build();
 
                 var wiki = container.Resolve<IWiki>();
+                logger.LogInformation("Getting wiki description...");
                 var wikiDesc = await wiki.GetDescriptionAsync().ConfigureAwait(false);
+                logger.LogInformation("Getting entries...");
                 var entries = await wiki.GetEntriesAsync().ConfigureAwait(false);
                 var dict = container.Resolve<IDict>();
+                logger.LogInformation("Saving dictionary...");
                 await dict.SaveAsync(wikiDesc, entries).ConfigureAwait(false);
             }
             catch (Exception ex)
