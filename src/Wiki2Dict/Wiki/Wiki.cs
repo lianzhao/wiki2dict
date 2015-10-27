@@ -131,9 +131,12 @@ namespace Wiki2Dict.Wiki
         {
             const string requestUrl = "api.php?action=query&generator=allpages&gapnamespace=0&gaplimit=max&pllimit=max&gapfilterredir=redirects&prop=links&format=json&continue=";
             var res = await GetPagesAsync(requestUrl, gapcontinue).ConfigureAwait(false);
-            if (!string.IsNullOrEmpty(res._continue.plcontinue))
+            if (!string.IsNullOrEmpty(res._continue?.plcontinue))
             {
-                _logger.LogWarning("plcontinue not null, something may went wrong.");
+                _logger.LogWarning("plcontinue not null, something may went wrong. Try ignoring...");
+                var plRequestUrl =
+                    $"{requestUrl}gapcontinue||&gapcontinue={gapcontinue}&plcontinue={res._continue.plcontinue}";
+                res = await GetPagesAsync(plRequestUrl).ConfigureAwait(false);
             }
             return res;
         }
@@ -145,10 +148,16 @@ namespace Wiki2Dict.Wiki
                 requestUrl = $"{requestUrl}gapcontinue||&gapcontinue={gapcontinue}";
             }
 
+            return await GetPagesAsync(requestUrl).ConfigureAwait(false);
+        }
+
+        private async Task<QueryResponse> GetPagesAsync(string requestUrl)
+        {
             var response = await _httpClient.GetAsync(requestUrl, _logger).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return JsonConvert.DeserializeObject<QueryResponse>(json);
+
         }
     }
 }
