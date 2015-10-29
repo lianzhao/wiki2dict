@@ -11,7 +11,7 @@ namespace Wiki2Dict.Wiki
 {
     public class GetDescriptionAction : IDictEntryAction
     {
-        private const int MAX_REQUEST = 50;
+        private const int MAX_REQUEST = 500;
 
         private readonly ILogger _logger;
 
@@ -43,6 +43,7 @@ namespace Wiki2Dict.Wiki
                             description = $"{description}<br><a href=\"{client.BaseAddress}wiki/{entry.Value}\">读更多...</a>";
                         }
                         entry.Attributes["Description"] = description;
+                        _logger.LogVerbose($"Got description from {entry.Value}");
                     }
                     catch (Exception ex)
                     {
