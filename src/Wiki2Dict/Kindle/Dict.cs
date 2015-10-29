@@ -78,7 +78,7 @@ namespace Wiki2Dict.Kindle
                 orth = dictEntry.Key,
                 infl =
                     string.Join(string.Empty,
-                        dictEntry.AlternativeKeys.Select(key => string.Format(_config.iformFormat, key))),
+                        dictEntry.AlternativeKeys.Select(key => string.Format(_config.iformFormat, key.EscapeForXml()))),
                 word = dictEntry.Key,
                 phonetic = dictEntry.Attributes.ContainsKey("Phonetic") ? dictEntry.Attributes["Phonetic"] : null,
                 description =

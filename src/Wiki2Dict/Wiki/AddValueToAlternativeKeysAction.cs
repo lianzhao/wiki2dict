@@ -11,9 +11,10 @@ namespace Wiki2Dict.Wiki
         {
             foreach (var entry in entries)
             {
-                TryAddAlternativeKey(entry, entry.Value);
-                TryAddAlternativeKey(entry, entry.Value.Replace("•", "·"));
-                TryAddAlternativeKey(entry, entry.Value.Replace("·", "•"));
+                var value = entry.Value.EscapeForXml();
+                TryAddAlternativeKey(entry, value);
+                TryAddAlternativeKey(entry, value.Replace("•", "·"));
+                TryAddAlternativeKey(entry, value.Replace("·", "•"));
             }
             return Task.FromResult(0);
         }
