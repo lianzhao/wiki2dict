@@ -3,7 +3,7 @@
     {
       "type": "Wiki2Dict.WikiModule, Wiki2Dict",
       "parameters": {
-        "baseAddress": "http://lotr.huiji.wiki/"
+        "baseAddress": "http://asoiaf.huiji.wiki/"
       }
     }
   ]

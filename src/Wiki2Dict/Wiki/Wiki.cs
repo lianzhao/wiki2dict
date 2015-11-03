@@ -77,7 +77,7 @@ namespace Wiki2Dict.Wiki
                     redirects.FirstOrDefault(redirect => entry.Value == redirect.Key)?
                         .Where(redirect => redirect.RedirectFrom != entry.Key)
                         .Select(redirect => redirect.RedirectFrom)
-                        .ToArray() ?? new string[] {};
+                        .ToList() ?? new List<string>();
             }
 
             if (_furtherAction != null)
@@ -90,12 +90,18 @@ namespace Wiki2Dict.Wiki
 
         private async Task<IEnumerable<Page>> GetAllLanglinksAsync()
         {
-            return await GetAllPagesAsync(async gapcontinue => await GetLanglinksAsync(gapcontinue).ConfigureAwait(false));
+            return
+                await
+                    GetAllPagesAsync(async gapcontinue => await GetLanglinksAsync(gapcontinue).ConfigureAwait(false))
+                        .ConfigureAwait(false);
         }
 
         private async Task<IEnumerable<Page>> GetAllRedirectsAsync()
         {
-            return await GetAllPagesAsync(async gapcontinue => await GetRedirectsAsync(gapcontinue).ConfigureAwait(false));
+            return
+                await
+                    GetAllPagesAsync(async gapcontinue => await GetRedirectsAsync(gapcontinue).ConfigureAwait(false))
+                        .ConfigureAwait(false);
         }
 
         private static async Task<IEnumerable<Page>> GetAllPagesAsync(Func<string, Task<QueryResponse>> getPagesFunc)
@@ -106,7 +112,11 @@ namespace Wiki2Dict.Wiki
             {
                 var response = await getPagesFunc(gapcontinue).ConfigureAwait(false);
                 gapcontinue = response._continue?.gapcontinue;
-                rv = rv.Concat(response.query.pages.Values);
+                var pages = response.query?.pages?.Values;
+                if (pages != null)
+                {
+                    rv = rv.Concat(pages);
+                }
                 if (string.IsNullOrEmpty(gapcontinue))
                 {
                     break;
@@ -124,7 +134,15 @@ namespace Wiki2Dict.Wiki
         private async Task<QueryResponse> GetRedirectsAsync(string gapcontinue)
         {
             const string requestUrl = "api.php?action=query&generator=allpages&gapnamespace=0&gaplimit=max&pllimit=max&gapfilterredir=redirects&prop=links&format=json&continue=";
-            return await GetPagesAsync(requestUrl, gapcontinue).ConfigureAwait(false);
+            var res = await GetPagesAsync(requestUrl, gapcontinue).ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(res._continue?.plcontinue))
+            {
+                _logger.LogWarning("plcontinue not null, something may went wrong. Try ignoring...");
+                var plRequestUrl =
+                    $"{requestUrl}gapcontinue||&gapcontinue={gapcontinue}&plcontinue={res._continue.plcontinue}";
+                res = await GetPagesAsync(plRequestUrl).ConfigureAwait(false);
+            }
+            return res;
         }
 
         private async Task<QueryResponse> GetPagesAsync(string requestUrl, string gapcontinue)
@@ -134,10 +152,16 @@ namespace Wiki2Dict.Wiki
                 requestUrl = $"{requestUrl}gapcontinue||&gapcontinue={gapcontinue}";
             }
 
-            var response = await _httpClient.GetAsync(requestUrl, _logger);
+            return await GetPagesAsync(requestUrl).ConfigureAwait(false);
+        }
+
+        private async Task<QueryResponse> GetPagesAsync(string requestUrl)
+        {
+            var response = await _httpClient.GetAsync(requestUrl, _logger).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return JsonConvert.DeserializeObject<QueryResponse>(json);
+
         }
     }
 }
