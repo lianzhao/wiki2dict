@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Autofac;
 using Autofac.Configuration;
 using Microsoft.Framework.Configuration;
 using Microsoft.Framework.Configuration.Json;
+using Microsoft.Framework.Logging;
 using Wiki2Dict.Core;
 using Wiki2Dict.Kindle;
 using Wiki2Dict.Wiki;
@@ -14,6 +16,8 @@ namespace Wiki2Dict
 {
     class Program
     {
+        private const string DictEntryActionKey = "DictEntryActionKey";
+
         static void Main(string[] args)
         {
             var enterTime = DateTimeOffset.Now;
@@ -37,9 +41,20 @@ namespace Wiki2Dict
                 var builder = new ContainerBuilder();
                 var module = new ConfigurationModule(config.Build());
                 builder.RegisterModule(module);
+                
+                var loggerFactory = new LoggerFactory();
+                loggerFactory.AddConsole(LogLevel.Information);
+                builder.RegisterInstance(loggerFactory).As<ILoggerFactory>().SingleInstance();
+
                 builder.RegisterType<GetDescriptionAction>().AsImplementedInterfaces().InstancePerDependency();
+                builder.RegisterType<AddValueToAlternativeKeysAction>().AsImplementedInterfaces().InstancePerDependency();
+                builder.Register(ctx => new CompositeDictEntryAction(ctx.Resolve<IEnumerable<IDictEntryAction>>()))
+                    .Keyed<IDictEntryAction>(DictEntryActionKey);
                 builder.Register(
-                    ctx => new Wiki.Wiki(ctx.Resolve<HttpClient>(), ctx.ResolveOptional<IDictEntryAction>()))
+                    ctx =>
+                        new Wiki.Wiki(ctx.Resolve<HttpClient>(),
+                            ctx.ResolveOptionalKeyed<IDictEntryAction>(DictEntryActionKey),
+                            ctx.Resolve<ILoggerFactory>()))
                     .AsImplementedInterfaces()
                     .InstancePerDependency();
                 builder.RegisterInstance(new DictConfig
@@ -52,17 +67,22 @@ namespace Wiki2Dict
                 }).SingleInstance();
                 builder.RegisterType<Dict>().AsImplementedInterfaces().SingleInstance();
 
+                var logger = loggerFactory.CreateLogger(typeof (Program).FullName);
                 var container = builder.Build();
 
                 var wiki = container.Resolve<IWiki>();
-                var wikiDesc = await wiki.GetDescriptionAsync();
+                logger.LogInformation("Getting wiki description...");
+                var wikiDesc = await wiki.GetDescriptionAsync().ConfigureAwait(false);
+                logger.LogInformation("Getting entries...");
                 var entries = await wiki.GetEntriesAsync().ConfigureAwait(false);
                 var dict = container.Resolve<IDict>();
+                logger.LogInformation("Saving dictionary...");
                 await dict.SaveAsync(wikiDesc, entries).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
             }
         }
     }
