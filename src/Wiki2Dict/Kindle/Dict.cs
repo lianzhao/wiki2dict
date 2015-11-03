@@ -54,7 +54,8 @@ namespace Wiki2Dict.Kindle
             
             File.Delete(_config.FilePath);
             var entriesXml = string.Join(string.Empty,
-                entries.Select(entry => FormatEntry(entryTemplate, ConvertEntry(entry))));
+                entries.GroupBy(entry => entry.Value)
+                    .SelectMany(group => group.Select((entry, index) => FormatEntry(entryTemplate, ConvertEntry(entry, index)))));
             var xml = dictTemplate.Replace("@entries", entriesXml).Replace("@wikiName", wiki.Name).Replace("@wikiDescription", wiki.Description).Replace("@wikiCopyrightUrl", wiki.CopyrightUrl);
             using (var sw = new StreamWriter(new FileStream(_config.FilePath, FileMode.Create)))
             {
@@ -71,7 +72,7 @@ namespace Wiki2Dict.Kindle
             }
         }
 
-        private Entry ConvertEntry(DictEntry dictEntry)
+        private Entry ConvertEntry(DictEntry dictEntry, int index)
         {
             var rv = new Entry
             {
@@ -83,6 +84,7 @@ namespace Wiki2Dict.Kindle
                 phonetic = dictEntry.Attributes.ContainsKey("Phonetic") ? dictEntry.Attributes["Phonetic"] : null,
                 description =
                     dictEntry.Attributes.ContainsKey("Description") ? dictEntry.Attributes["Description"] : null,
+                homo_no = index + 1,
             };
             return rv;
         }

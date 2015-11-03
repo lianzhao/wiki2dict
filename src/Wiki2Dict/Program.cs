@@ -48,6 +48,7 @@ namespace Wiki2Dict
 
                 builder.RegisterType<GetDescriptionAction>().AsImplementedInterfaces().InstancePerDependency();
                 builder.RegisterType<AddValueToAlternativeKeysAction>().AsImplementedInterfaces().InstancePerDependency();
+                builder.RegisterType<DisambiguationAction>().AsImplementedInterfaces().InstancePerDependency();
                 builder.Register(ctx => new CompositeDictEntryAction(ctx.Resolve<IEnumerable<IDictEntryAction>>()))
                     .Keyed<IDictEntryAction>(DictEntryActionKey);
                 builder.Register(
