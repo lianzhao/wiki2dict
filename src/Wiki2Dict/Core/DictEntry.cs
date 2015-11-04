@@ -16,5 +16,10 @@ namespace Wiki2Dict.Core
         public string Value { get; set; }
 
         public IDictionary<string, string> Attributes { get; set; }
+
+        public DictEntry Clone()
+        {
+            return MemberwiseClone() as DictEntry;
+        }
     }
 }

@@ -40,12 +40,22 @@ namespace Wiki2Dict.Wiki
             //Update entries
             foreach (var @group in groups.Where(g => g.pages != null))
             {
-                //var title = group.title.Replace("(消歧义)", string.Empty);
+                var title = group.title.Replace("(消歧义)", string.Empty);
                 var alterKeys = group.pages.Select(p => p.title.TrimWikiPageTitle()).ToList();
-                foreach (var entry in @group.pages.Select(page => entries.FirstOrDefault(e => e.Value == page.title)))
+                foreach (
+                    var entry in
+                        @group.pages.Select(page => entries.FirstOrDefault(e => e.Value == page.title))
+                            .Where(entry => entry != null))
                 {
                     //entry.Value = title;
-                    entry?.AlternativeKeys.AddRange(alterKeys);
+                    entry.AlternativeKeys.AddRange(alterKeys);
+                    if (entry.Value.TrimWikiPageTitle() != title)
+                    {
+                        // e.g. entry.Value = 布兰·史塔克, group.title = 布兰登·史塔克(消歧义)
+                        var newEntry = entry.Clone();
+                        newEntry.Value = title;
+                        entries.Add(newEntry);
+                    }
                 }
             }
         }
