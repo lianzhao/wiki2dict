@@ -43,7 +43,7 @@ namespace Wiki2Dict
                 builder.RegisterModule(module);
                 
                 var loggerFactory = new LoggerFactory();
-                loggerFactory.AddConsole(LogLevel.Information);
+                loggerFactory.AddConsole(LogLevel.Verbose);
                 builder.RegisterInstance(loggerFactory).As<ILoggerFactory>().SingleInstance();
 
                 builder.RegisterType<GetDescriptionAction>().AsImplementedInterfaces().InstancePerDependency();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Wiki2Dict.Core;
 
@@ -51,11 +52,17 @@ namespace Wiki2Dict.Kindle
             {
                 throw new InvalidOperationException("Opf template file error.");
             }
-            
+
             File.Delete(_config.FilePath);
             var entriesXml = string.Join(string.Empty,
-                entries.GroupBy(entry => entry.Value)
-                    .SelectMany(group => group.Select((entry, index) => FormatEntry(entryTemplate, ConvertEntry(entry, index)))));
+                entries.GroupBy(entry => entry.Key)
+                    .SelectMany(group =>
+                    {
+                        var alterKeys = group.SelectMany(entry => entry.AlternativeKeys).Distinct();
+                        var infl = FormatInfl(alterKeys);
+                        return
+                            group.Select((entry, index) => FormatEntry(entryTemplate, ConvertEntry(entry, infl, index)));
+                    }));
             var xml = dictTemplate.Replace("@entries", entriesXml).Replace("@wikiName", wiki.Name).Replace("@wikiDescription", wiki.Description).Replace("@wikiCopyrightUrl", wiki.CopyrightUrl);
             using (var sw = new StreamWriter(new FileStream(_config.FilePath, FileMode.Create)))
             {
@@ -72,19 +79,23 @@ namespace Wiki2Dict.Kindle
             }
         }
 
-        private Entry ConvertEntry(DictEntry dictEntry, int index)
+        private string FormatInfl(IEnumerable<string> alternativeKeys)
+        {
+            return string.Join(string.Empty,
+                alternativeKeys.Distinct().Select(key => string.Format(_config.iformFormat, key.EscapeForXml())));
+        }
+
+        private Entry ConvertEntry(DictEntry dictEntry, string infl, int index)
         {
             var rv = new Entry
             {
                 orth = dictEntry.Key,
-                infl =
-                    string.Join(string.Empty,
-                        dictEntry.AlternativeKeys.Select(key => string.Format(_config.iformFormat, key.EscapeForXml()))),
+                infl = infl,
                 word = dictEntry.Key,
                 phonetic = dictEntry.Attributes.ContainsKey("Phonetic") ? dictEntry.Attributes["Phonetic"] : null,
                 description =
                     dictEntry.Attributes.ContainsKey("Description") ? dictEntry.Attributes["Description"] : null,
-                homo_no = index + 1,
+                homo_no = (index + 1).ToString(),
             };
             return rv;
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Framework.Logging;
 using Newtonsoft.Json;
 using Wiki2Dict.Core;
 
@@ -10,6 +11,13 @@ namespace Wiki2Dict.Wiki
 {
     public class DisambiguationAction : IDictEntryAction
     {
+        private readonly ILogger _logger;
+
+        public DisambiguationAction(ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger(typeof (DisambiguationAction).FullName);
+        }
+
         public async Task InvokeAsync(HttpClient client, IList<DictEntry> entries)
         {
             // Step 1
@@ -30,30 +38,24 @@ namespace Wiki2Dict.Wiki
 
             //Step 3
             //Update entries
-            foreach (var @group in groups)
+            foreach (var @group in groups.Where(g => g.pages != null))
             {
-                var title = group.title.Replace("(消歧义)", string.Empty);
+                //var title = group.title.Replace("(消歧义)", string.Empty);
                 var alterKeys = group.pages.Select(p => TrimTitle(p.title)).ToList();
-                foreach (var page in @group.pages)
+                foreach (var entry in @group.pages.Select(page => entries.FirstOrDefault(e => e.Value == page.title)))
                 {
-                    var entry = entries.FirstOrDefault(e => e.Value == page.title);
-                    if (entry == null)
-                    {
-                        // todo
-                        continue;
-                    }
-
-                    entry.Value = title;
-                    entry.AlternativeKeys.AddRange(alterKeys);
+                    //entry.Value = title;
+                    entry?.AlternativeKeys.AddRange(alterKeys);
                 }
             }
         }
 
-        private static async Task<IEnumerable<Page>> GetPagesInCategory(HttpClient client, string category)
+        private async Task<IEnumerable<Page>> GetPagesInCategory(HttpClient client, string category)
         {
             var res =
                 await client.GetAsync(
-                    $"/api.php?action=query&generator=categorymembers&gcmtitle=Category:{category}&gcmlimit=max&format=json&continue=")
+                    $"/api.php?action=query&generator=categorymembers&gcmtitle=Category:{category}&gcmlimit=max&format=json&continue=",
+                    _logger)
                     .ConfigureAwait(false);
             res.EnsureSuccessStatusCode();
             var json = await res.Content.ReadAsStringAsync().ConfigureAwait(false);

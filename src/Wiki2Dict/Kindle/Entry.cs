@@ -14,6 +14,6 @@ namespace Wiki2Dict.Kindle
 
         public string description { get; set; }
 
-        public int homo_no { get; set; }
+        public string homo_no { get; set; }
     }
 }
