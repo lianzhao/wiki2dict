@@ -12,7 +12,7 @@
 		</dc-metadata>
 		<x-metadata>
 			<output encoding="utf-8"/>
-			<DictionaryInLanguage>en</DictionaryInLanguage><!-- 输入语言 -->
+			<DictionaryInLanguage>zh-cn</DictionaryInLanguage><!-- 输入语言 -->
 			<DictionaryOutLanguage>zh-cn</DictionaryOutLanguage><!-- 输出语言 -->
 			<EmbeddedCover></EmbeddedCover><!-- 封面图片 -->
 		</x-metadata>

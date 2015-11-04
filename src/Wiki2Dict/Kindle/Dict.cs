@@ -58,7 +58,12 @@ namespace Wiki2Dict.Kindle
                 entries.GroupBy(entry => entry.Key)
                     .SelectMany(group =>
                     {
-                        var alterKeys = group.SelectMany(entry => entry.AlternativeKeys).Distinct();
+                        var alterKeys =
+                            group.SelectMany(entry => entry.AlternativeKeys)
+                                .Concat(group.Select(entry => entry.Key))
+                                .Concat(group.Select(entry => entry.Value.Replace("•", "·")))
+                                .Concat(group.Select(entry => entry.Value.Replace("·", "•")))
+                                .Distinct();
                         var infl = FormatInfl(alterKeys);
                         return
                             group.Select((entry, index) => FormatEntry(entryTemplate, ConvertEntry(entry, infl, index)));
@@ -89,9 +94,9 @@ namespace Wiki2Dict.Kindle
         {
             var rv = new Entry
             {
-                orth = dictEntry.Key,
+                orth = dictEntry.Value.TrimWikiPageTitle(),
                 infl = infl,
-                word = dictEntry.Key,
+                word = dictEntry.Value,
                 phonetic = dictEntry.Attributes.ContainsKey("Phonetic") ? dictEntry.Attributes["Phonetic"] : null,
                 description =
                     dictEntry.Attributes.ContainsKey("Description") ? dictEntry.Attributes["Description"] : null,

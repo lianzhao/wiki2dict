@@ -41,7 +41,7 @@ namespace Wiki2Dict.Wiki
             foreach (var @group in groups.Where(g => g.pages != null))
             {
                 //var title = group.title.Replace("(消歧义)", string.Empty);
-                var alterKeys = group.pages.Select(p => TrimTitle(p.title)).ToList();
+                var alterKeys = group.pages.Select(p => p.title.TrimWikiPageTitle()).ToList();
                 foreach (var entry in @group.pages.Select(page => entries.FirstOrDefault(e => e.Value == page.title)))
                 {
                     //entry.Value = title;
@@ -61,12 +61,6 @@ namespace Wiki2Dict.Wiki
             var json = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
             var model = JsonConvert.DeserializeObject<QueryResponse>(json);
             return model?.query?.pages?.Values;
-        }
-
-        private static string TrimTitle(string title)
-        {
-            var index = title.IndexOf("(", StringComparison.Ordinal);
-            return index > 0 ? title.Substring(0, index) : title;
         }
     }
 }

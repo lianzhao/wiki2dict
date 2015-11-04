@@ -13,8 +13,6 @@ namespace Wiki2Dict.Wiki
             {
                 var value = entry.Value.EscapeForXml();
                 TryAddAlternativeKey(entry, value);
-                TryAddAlternativeKey(entry, value.Replace("•", "·"));
-                TryAddAlternativeKey(entry, value.Replace("·", "•"));
             }
             return Task.FromResult(0);
         }
