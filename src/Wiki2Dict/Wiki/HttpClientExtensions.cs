@@ -12,23 +12,32 @@ namespace Wiki2Dict.Wiki
         {
             if (logger == null)
             {
-                return await httpClient.GetAsync(requestUri);
+                return await httpClient.GetAsync(requestUri).ConfigureAwait(false);
             }
 
-            logger.LogVerbose($"Sending request {requestUri}");
-            var now = DateTimeOffset.Now;
-            var res = await httpClient.GetAsync(requestUri).ConfigureAwait(false);
-            if (res.IsSuccessStatusCode)
+            try
             {
-                logger.LogVerbose(
-                    $"Got response {res.StatusCode} in {(DateTimeOffset.Now - now).TotalMilliseconds.ToString("F2")}ms");
+                logger.LogVerbose($"Sending request {requestUri}");
+                var now = DateTimeOffset.Now;
+                var res = await httpClient.GetAsync(requestUri).ConfigureAwait(false);
+                if (res.IsSuccessStatusCode)
+                {
+                    logger.LogVerbose(
+                        $"Got response {res.StatusCode} in {(DateTimeOffset.Now - now).TotalMilliseconds.ToString("F2")}ms");
+                }
+                else
+                {
+                    logger.LogError(
+                        $"Got response {res.StatusCode} in {(DateTimeOffset.Now - now).TotalMilliseconds.ToString("F2")}ms");
+                }
+                return res;
             }
-            else
+            catch (Exception ex)
             {
-                logger.LogError(
-                    $"Got response {res.StatusCode} in {(DateTimeOffset.Now - now).TotalMilliseconds.ToString("F2")}ms");
+                logger.LogError(ex.Message);
+                logger.LogError(ex.StackTrace);
+                throw;
             }
-            return res;
         }
     }
 }
