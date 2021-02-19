@@ -15,7 +15,7 @@ namespace Wiki2Dict.Wiki
                 return await httpClient.GetAsync(requestUri);
             }
 
-            logger.LogInformation($"Sending request {requestUri}");
+            logger.LogDebug($"Sending request {requestUri}");
             var now = DateTimeOffset.Now;
             var res = await httpClient.GetAsync(requestUri).ConfigureAwait(false);
             if (res.IsSuccessStatusCode)
