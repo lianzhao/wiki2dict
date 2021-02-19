@@ -1,7 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Framework.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Wiki2Dict.Wiki
 {
@@ -15,12 +15,12 @@ namespace Wiki2Dict.Wiki
                 return await httpClient.GetAsync(requestUri);
             }
 
-            logger.LogVerbose($"Sending request {requestUri}");
+            logger.LogInformation($"Sending request {requestUri}");
             var now = DateTimeOffset.Now;
             var res = await httpClient.GetAsync(requestUri).ConfigureAwait(false);
             if (res.IsSuccessStatusCode)
             {
-                logger.LogVerbose(
+                logger.LogDebug(
                     $"Got response {res.StatusCode} in {(DateTimeOffset.Now - now).TotalMilliseconds.ToString("F2")}ms");
             }
             else

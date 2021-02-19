@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Framework.Logging;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Wiki2Dict.Core;
 
@@ -43,7 +43,7 @@ namespace Wiki2Dict.Wiki
                             description = $"{description}<br><a href=\"{client.BaseAddress}wiki/{entry.Value}\">读更多...</a>";
                         }
                         entry.Attributes["Description"] = description;
-                        _logger.LogVerbose($"Got description from {entry.Value}");
+                        _logger.LogDebug($"Got description from {entry.Value}");
                     }
                     catch (Exception ex)
                     {
