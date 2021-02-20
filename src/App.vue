@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import bot from 'wtf_wikipedia';
+import parser from 'wtf_wikipedia';
 import { createSite, Site } from '@/models/site';
 
 export default Vue.extend({
@@ -42,10 +42,18 @@ export default Vue.extend({
       const site2 = createSite('https://coppermind.huijiwiki.com/wiki/%E9%A6%96%E9%A1%B5');
       // this.testSite(site2);
     },
-    testSite(site: Site) {
-      site.getDescription().then(console.log);
-      site.getAllPages().then(console.log);
-      site.getAllRedirects().then(console.log);
+    async testSite(site: Site) {
+      // site.getDescription().then(console.log);
+      // site.getAllPages().then(console.log);
+      // site.getAllRedirects().then(console.log);
+      const pages = await site.getAllPages();
+      const contents = await site.getPageContent(pages.slice(0, 5).map(p => p.title));
+      Object.entries(contents).map(([key, content]) => {
+        const text = parser(content)
+          .sections(0)
+          .text();
+        console.log(key, text);
+      });
     },
   },
 });

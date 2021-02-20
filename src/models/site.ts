@@ -16,6 +16,7 @@ export interface Site {
   getDescription(opts?: RequestInit): Promise<SiteDescription>;
   getAllPages(query?: Record<string, any>): Promise<Page[]>;
   getAllRedirects(query?: Record<string, any>): Promise<Page[]>;
+  getPageContent(titles: string[], query?: Record<string, string>): Promise<Record<string, string>>;
 }
 
 export class CommonSite extends HTTPClient implements Site {
@@ -50,6 +51,31 @@ export class CommonSite extends HTTPClient implements Site {
       }
       return resp;
     });
+  }
+
+  public async getPageContent(titles: string[], query?: Record<string, string>) {
+    const url = this.appendQuery('api.php', {
+      action: 'query',
+      prop: 'revisions',
+      rvslots: '*',
+      rvprop: 'content',
+      formatversion: 2,
+      format: 'json',
+      titles: titles.map(encodeURIComponent).join('|'),
+      ...query,
+    });
+    const resp = await this.get(url);
+    const result: any = {};
+    if (resp.query?.pages) {
+      Object.values(resp.query.pages).forEach((page: any) => {
+        const title = page.title;
+        const content = page.revisions?.[0]?.slots?.main?.content;
+        if (title && content) {
+          result[title] = content;
+        }
+      });
+    }
+    return result;
   }
 
   protected async queryAll(getPagesFunc: (gapcontinue: string) => Promise<any>) {
