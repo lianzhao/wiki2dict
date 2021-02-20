@@ -13,7 +13,7 @@ export interface Page {
 type apfilterredir = 'all' | 'nonredirects' | 'redirects';
 
 export interface Site {
-  getDescription(opts?: RequestInit): Promise<SiteDescription>;
+  getDescription(): Promise<SiteDescription>;
   getAllPages(query?: Record<string, any>): Promise<Page[]>;
   getAllRedirects(query?: Record<string, any>): Promise<Page[]>;
   getPageContent(titles: string[], query?: Record<string, string>): Promise<Record<string, string>>;
@@ -24,8 +24,8 @@ export class CommonSite extends HTTPClient implements Site {
     super(baseUrl, fetchOptions);
   }
 
-  public async getDescription(opts?: RequestInit) {
-    const resp = await this.get('api.php?action=query&meta=siteinfo&format=json', opts);
+  public async getDescription() {
+    const resp = await this.get('api.php?action=query&meta=siteinfo&format=json');
     return {
       name: resp?.query?.general?.sitename || '',
       url: this.baseUrl,
