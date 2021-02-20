@@ -40,10 +40,11 @@ export default Vue.extend({
       const site = createSite('https://princeofnothing.fandom.com/wiki/Prince_of_Nothing_Wiki');
       this.testSite(site);
       const site2 = createSite('https://coppermind.huijiwiki.com/wiki/%E9%A6%96%E9%A1%B5');
-      this.testSite(site2);
+      // this.testSite(site2);
     },
     testSite(site: Site) {
-      site.GetDescription().then(console.log);
+      site.getDescription().then(console.log);
+      site.getAllPages().then(console.log);
     },
   },
 });

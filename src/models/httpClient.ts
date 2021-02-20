@@ -26,7 +26,7 @@ export class HTTPClient {
 
   protected appendQuery(url: string, query: Record<string, any>) {
     const queryPart = Object.entries(query)
-      .map(([k, v]) => `${k}=${v}`)
+      .map(([k, v]) => (v === undefined || v === null ? '' : `${k}=${v}`))
       .join('&');
     return `${url}${url.includes('?') ? '&' : '?'}${queryPart}`;
   }
