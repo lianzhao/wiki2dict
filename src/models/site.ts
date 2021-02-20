@@ -15,6 +15,7 @@ type apfilterredir = 'all' | 'nonredirects' | 'redirects';
 export interface Site {
   getDescription(opts?: RequestInit): Promise<SiteDescription>;
   getAllPages(query?: Record<string, any>): Promise<Page[]>;
+  getAllRedirects(query?: Record<string, any>): Promise<Page[]>;
 }
 
 export class CommonSite extends HTTPClient implements Site {
@@ -30,8 +31,25 @@ export class CommonSite extends HTTPClient implements Site {
     };
   }
 
-  public async getAllPages(query?: Record<string, any>) {
-    return this.queryAll(gapcontinue => this.query({ gapfilterredir: 'nonredirects', ...query, gapcontinue }));
+  public getAllPages(query?: Record<string, any>) {
+    return this.queryAll(gapcontinue => this.queryAllPages({ gapfilterredir: 'nonredirects', ...query, gapcontinue }));
+  }
+
+  public getAllRedirects(query?: Record<string, any>) {
+    return this.queryAll(async gapcontinue => {
+      const resp = await this.queryAllPages({
+        pllimit: 'max',
+        gapfilterredir: 'redirects',
+        prop: 'links',
+        ...query,
+        gapcontinue,
+      });
+      if (resp.continue?.plcontinue) {
+        console.warn('plcontinue not null, gapcontinue=', gapcontinue, resp);
+        // todo
+      }
+      return resp;
+    });
   }
 
   protected async queryAll(getPagesFunc: (gapcontinue: string) => Promise<any>) {
@@ -47,13 +65,12 @@ export class CommonSite extends HTTPClient implements Site {
     return result;
   }
 
-  protected query(query: Record<string, any>) {
+  protected queryAllPages(query: Record<string, any>) {
     const url = this.appendQuery('api.php', {
       action: 'query',
       generator: 'allpages',
       gapnamespace: 0,
       gaplimit: 'max',
-      pllimit: 'max',
       format: 'json',
       continue: 'gapcontinue||',
       ...query,

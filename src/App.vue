@@ -45,6 +45,7 @@ export default Vue.extend({
     testSite(site: Site) {
       site.getDescription().then(console.log);
       site.getAllPages().then(console.log);
+      site.getAllRedirects().then(console.log);
     },
   },
 });
