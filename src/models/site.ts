@@ -31,21 +31,34 @@ export class CommonSite extends HTTPClient implements Site {
   }
 
   public async getAllPages(query?: Record<string, any>) {
-    const defaultQuery = { apfilterredir: 'nonredirects' };
-    let apcontinue = '';
+    return this.queryAll(gapcontinue => this.query({ gapfilterredir: 'nonredirects', ...query, gapcontinue }));
+  }
+
+  protected async queryAll(getPagesFunc: (gapcontinue: string) => Promise<any>) {
+    let gapcontinue = '';
     let result: Page[] = [];
     do {
-      const url = this.appendQuery(
-        `api.php?action=query&list=allpages&aplimit=max&apcontinue=${apcontinue}&format=json`,
-        query || defaultQuery,
-      );
-      const resp = await this.get(url);
-      apcontinue = resp.continue?.apcontinue || '';
-      if (resp.query?.allpages) {
-        result = result.concat(resp.query?.allpages);
+      const resp = await getPagesFunc(gapcontinue);
+      gapcontinue = resp.continue?.gapcontinue || '';
+      if (resp.query?.pages) {
+        result = result.concat(Object.values(resp.query.pages));
       }
-    } while (apcontinue);
+    } while (gapcontinue);
     return result;
+  }
+
+  protected query(query: Record<string, any>) {
+    const url = this.appendQuery('api.php', {
+      action: 'query',
+      generator: 'allpages',
+      gapnamespace: 0,
+      gaplimit: 'max',
+      pllimit: 'max',
+      format: 'json',
+      continue: 'gapcontinue||',
+      ...query,
+    });
+    return this.get(url);
   }
 }
 
