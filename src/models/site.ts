@@ -35,10 +35,10 @@ export class CommonSite extends HTTPClient implements Site {
     let apcontinue = '';
     let result: Page[] = [];
     do {
-      let url = `api.php?action=query&list=allpages&aplimit=max&apcontinue=${apcontinue}&format=json`;
-      if (query) {
-        url = this.appendQuery(url, query || defaultQuery);
-      }
+      const url = this.appendQuery(
+        `api.php?action=query&list=allpages&aplimit=max&apcontinue=${apcontinue}&format=json`,
+        query || defaultQuery,
+      );
       const resp = await this.get(url);
       apcontinue = resp.continue?.apcontinue || '';
       if (resp.query?.allpages) {
