@@ -210,6 +210,7 @@ node_modules
 /dist
 built
 *_dict.zip
+*_dict.html
 
 
 # local env files
