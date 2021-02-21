@@ -89,15 +89,15 @@ export default Vue.extend({
     run() {
       this.running = true;
       const runner = new Runner(this.url);
-      runner.addEventListener('message', this.handleRunnerMessage);
-      runner.addEventListener('done', this.handleRunnerDone);
-      runner.addEventListener('error', this.handleRunnerError);
+      runner.addEventListener('message', this.handleRunnerMessage as any);
+      runner.addEventListener('done', this.handleRunnerDone as any);
+      runner.addEventListener('error', this.handleRunnerError as any);
       runner.run();
     },
     removeRunnerEventListeners(runner: Runner) {
-      runner.removeEventListener('message', this.handleRunnerMessage);
-      runner.removeEventListener('done', this.handleRunnerDone);
-      runner.removeEventListener('error', this.handleRunnerError);
+      runner.removeEventListener('message', this.handleRunnerMessage as any);
+      runner.removeEventListener('done', this.handleRunnerDone as any);
+      runner.removeEventListener('error', this.handleRunnerError as any);
     },
     handleRunnerMessage(e: MessageEvent) {
       this.messages.unshift({
