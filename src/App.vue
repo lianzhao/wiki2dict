@@ -1,7 +1,11 @@
 <template>
   <div id="app">
-    <div v-if="!step">
-      <button type="" @click="run">run</button>
+    <div v-if="!step" class="form">
+      <div>维基地址</div>
+      <div>
+        <input v-model="url" />
+      </div>
+      <button type="" @click="run">开始</button>
     </div>
     <div v-else>
       <div>当前步骤：{{ step }}</div>
@@ -74,17 +78,15 @@ export default Vue.extend({
       // this.testSite(site2);
     },
     async testSite(site: Site) {
-      // site.getDescription().then(console.log);
-      // site.getAllPages().then(console.log);
-      // site.getAllRedirects().then(console.log);
-      const pages = await site.getAllPages();
-      const contents = await site.getPageContent(pages.slice(0, 5).map(p => p.title));
-      Object.entries(contents).map(([key, content]) => {
-        const text = parser(content)
-          .sections(0)
-          .text();
-        console.log(key, text);
-      });
+      // const pages = await site.getAllPages();
+      // const contents = await site.getPageContent(pages.slice(0, 5).map(p => p.title));
+      // Object.entries(contents).map(([key, content]) => {
+      //   const text = parser(content)
+      //     .sections(0)
+      //     .text();
+      //   console.log(key, text);
+      // });
+      site.getAllRedirects().then(console.log);
     },
     async run() {
       try {
@@ -109,6 +111,23 @@ export default Vue.extend({
           }
           progress += group.length;
           this.addMessage(`已下载${progress}/${pages.length}个词条`);
+        }
+        this.step = '加载重定向列表';
+        const redirects = await site.getAllRedirects();
+        this.addMessage(`共${pages.length}重定向`);
+        for (const redirect of redirects) {
+          const from = redirect.title;
+          const to = redirect.links?.[0]?.title || '';
+          const entry = dict[to];
+          if (!entry) {
+            this.addMessage(`目标重定向${to}不存在。源：${from}`, 'warn');
+            continue;
+          }
+          if (entry.alternativeKeys) {
+            entry.alternativeKeys.push(from);
+          } else {
+            entry.alternativeKeys = [from];
+          }
         }
         this.step = '生成OPF文件';
         const opf = formatOpf(siteInfo);
@@ -136,6 +155,11 @@ export default Vue.extend({
 </script>
 
 <style lang="scss">
+.form {
+  input {
+    width: 100%;
+  }
+}
 .messages {
   margin: 10px;
   border: 1px solid #ccc;

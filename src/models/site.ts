@@ -6,8 +6,8 @@ export interface SiteDescription {
 
 export interface Page {
   pageid: number;
-  ns: number;
   title: string;
+  links?: { title: string }[];
 }
 
 type apfilterredir = 'all' | 'nonredirects' | 'redirects';

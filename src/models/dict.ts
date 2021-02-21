@@ -92,9 +92,15 @@ export function formatOpf(site: SiteDescription, date?: Date) {
   return opfTemplate.replaceAll('@wikiName', site.name).replaceAll('@date', date.toDateString());
 }
 
-export function formatEntry(entry: DictEntry) {
-  // todo infl;
-  return entryTemplate.replaceAll('@word', entry.key).replaceAll('@description', entry.description);
+function formatIForm(iform: string) {
+  return `<idx:iform name="" value="${iform.replaceAll('"', '&quot;')}" />`;
+}
+
+function formatEntry(entry: DictEntry) {
+  return entryTemplate
+    .replaceAll('@word', entry.key)
+    .replaceAll('@description', entry.description)
+    .replaceAll('@infl', entry.alternativeKeys?.map(formatIForm).join('') || '');
 }
 
 export function formatDict(site: SiteDescription, entries: DictEntry[]) {
