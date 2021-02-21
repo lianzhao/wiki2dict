@@ -23,7 +23,7 @@ function removeRunnerEventListeners(runner: Runner) {
   runner.removeEventListener('error', handleRunnerError as any);
 }
 
-const url = 'https://princeofnothing.fandom.com/wiki/Prince_of_Nothing_Wiki';
+const url = process.argv[2];
 const runner = new Runner(url);
 runner.addEventListener('message', handleRunnerMessage as any);
 runner.addEventListener('done', handleRunnerDone as any);
