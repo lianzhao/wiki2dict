@@ -74,13 +74,33 @@ export default class Runner extends EventTarget {
       this.emitMessage('开始加载重定向列表');
       const redirects = await site.getAllRedirects();
       this.emitMessage(`共${pages.length}重定向`);
+      const redirectionMap = new Map<string, string>();
       for (const redirect of redirects) {
         const from = redirect.title;
         const to = redirect.links?.[0]?.title || '';
-        const entry = dict[to];
+        if (from && to) {
+          redirectionMap.set(from, to);
+        }
+      }
+      const findInRedirectionMap = (from: string) => {
+        const to = redirectionMap.get(from);
+        if (!to) {
+          return;
+        }
+        const to2 = findInRedirectionMap(to);
+        return to2 || to; // todo 如果循环重定向……
+      };
+      for (const redirect of redirects) {
+        const from = redirect.title;
+        let to = redirect.links?.[0]?.title || '';
+        let entry = dict[to];
         if (!entry) {
-          this.emitMessage(`目标重定向${to}不存在。源：${from}`, 'warn');
-          continue;
+          to = findInRedirectionMap(from);
+          entry = dict[to];
+          if (!entry) {
+            this.emitMessage(`目标重定向${to}不存在。源：${from}`, 'warn');
+            continue;
+          }
         }
         if (entry.alternativeKeys) {
           entry.alternativeKeys.push(from);
