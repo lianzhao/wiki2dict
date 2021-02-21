@@ -1,4 +1,5 @@
 import merge from 'lodash/merge';
+import fetch from 'cross-fetch';
 
 export class HTTPClient {
   protected baseUrl: string;

@@ -2,13 +2,16 @@
   "name": "wiki2dict",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "node": "tsc --outDir built; node --experimental-specifier-resolution=node built/index.js"
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "cross-fetch": "^3.0.6",
     "jszip": "^3.6.0",
     "lodash": "^4.17.20",
     "vue": "^2.6.11",

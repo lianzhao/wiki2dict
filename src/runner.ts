@@ -18,12 +18,22 @@ export class MessageEvent extends Event {
 }
 
 export class DoneEvent extends Event {
-  public siteInfo: SiteDescription;
+  public readonly siteInfo: SiteDescription;
   public readonly data: Uint8Array;
+
   constructor(siteInfo: SiteDescription, data: Uint8Array) {
     super('done');
     this.siteInfo = siteInfo;
     this.data = data;
+  }
+}
+
+export class ErrorEvent extends Event {
+  public readonly error: Error;
+
+  constructor(error: Error) {
+    super('error');
+    this.error = error;
   }
 }
 
@@ -92,7 +102,7 @@ export default class Runner extends EventTarget {
     } catch (e) {
       console.error(e);
       this.emitMessage('任务失败', 'error');
-      this.dispatchEvent(new ErrorEvent('error', e));
+      this.dispatchEvent(new ErrorEvent(e));
     }
   }
 
