@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <div v-if="!step" class="form">
+    <div class="form">
       <div>维基地址</div>
       <div>
-        <input v-model="url" />
+        <input v-model="url" :disabled="running" />
       </div>
-      <button type="" @click="run">开始</button>
+      <button type="" :disabled="running" @click="run">开始</button>
     </div>
-    <div v-else>
-      <div>当前步骤：{{ step }}</div>
-      <div class="messages">
-        <div v-for="({ msg, cls }, i) in messages" :key="i" :class="cls">{{ msg }}</div>
+    <div class="messages">
+      <div v-for="(msg, i) in messages" :key="i" :class="msg.level">
+        {{ msg.message }}
+        <a v-if="msg.helpLink" :href="msg.helpLink">帮助</a>
       </div>
     </div>
   </div>
@@ -19,10 +19,8 @@
 <script lang="ts">
 import Vue from 'vue';
 import parser from 'wtf_wikipedia';
-import chunk from 'lodash/chunk';
-import Zip from 'jszip';
-import { DictEntry, formatOpf, formatDict } from '@/models/dict';
-import { createSite, Site } from '@/models/site';
+import { Site } from '@/models/site';
+import Runner, { MessageEvent, DoneEvent } from './runner';
 
 function saveAs(blob: Blob, name: string) {
   const a = document.createElement('a');
@@ -41,13 +39,13 @@ export default Vue.extend({
   data() {
     return {
       url: 'https://princeofnothing.fandom.com/wiki/Prince_of_Nothing_Wiki',
-      chunkSize: 10,
-      step: '',
       messages: [] as any[],
+      running: false,
     };
   },
   methods: {
     test() {
+      parser.fetch('http://www.tolkiengateway.net/wiki/Main_Page').then(doc => console.log(doc?.paragraphs(0).text()));
       // bot
       //   .fetch('https://princeofnothing.fandom.com/wiki/Anas%C3%BBrimbor_Kellhus')
       //   .then(doc => console.log(doc?.paragraphs(0).text()));
@@ -72,9 +70,9 @@ export default Vue.extend({
       //     // },
       //   },
       // );
-      const site = createSite('https://princeofnothing.fandom.com/wiki/Prince_of_Nothing_Wiki');
-      this.testSite(site);
-      const site2 = createSite('https://coppermind.huijiwiki.com/wiki/%E9%A6%96%E9%A1%B5');
+      // const site = createSite('https://princeofnothing.fandom.com/wiki/Prince_of_Nothing_Wiki');
+      // this.testSite(site);
+      // const site2 = createSite('https://coppermind.huijiwiki.com/wiki/%E9%A6%96%E9%A1%B5');
       // this.testSite(site2);
     },
     async testSite(site: Site) {
@@ -88,67 +86,34 @@ export default Vue.extend({
       // });
       site.getAllRedirects().then(console.log);
     },
-    async run() {
-      try {
-        const site = createSite(this.url);
-        const dict: Record<string, DictEntry> = {};
-        let progress = 0;
-        this.step = '加载基础信息';
-        const siteInfo = await site.getDescription();
-        this.addMessage(`站点名称：${siteInfo.name}`);
-        this.step = '加载词条列表';
-        const pages = await site.getAllPages();
-        this.addMessage(`共${pages.length}词条`);
-        for (const group of chunk(pages, this.chunkSize)) {
-          const contents = await site.getPageContent(group.map(p => p.title));
-          for (const key of Object.keys(contents)) {
-            const section = parser(contents[key]).sections(0);
-            if (!section) {
-              this.addMessage(`${key}词条获取摘要失败。查看：${siteInfo.url}/wiki/${key}`, 'warn');
-              continue;
-            }
-            dict[key] = { key, description: section.text() };
-          }
-          progress += group.length;
-          this.addMessage(`已下载${progress}/${pages.length}个词条`);
-        }
-        this.step = '加载重定向列表';
-        const redirects = await site.getAllRedirects();
-        this.addMessage(`共${pages.length}重定向`);
-        for (const redirect of redirects) {
-          const from = redirect.title;
-          const to = redirect.links?.[0]?.title || '';
-          const entry = dict[to];
-          if (!entry) {
-            this.addMessage(`目标重定向${to}不存在。源：${from}`, 'warn');
-            continue;
-          }
-          if (entry.alternativeKeys) {
-            entry.alternativeKeys.push(from);
-          } else {
-            entry.alternativeKeys = [from];
-          }
-        }
-        this.step = '生成OPF文件';
-        const opf = formatOpf(siteInfo);
-        this.step = '生成HTML文件';
-        const html = formatDict(siteInfo, Object.values(dict));
-        this.step = '打包';
-        const zip = new Zip();
-        zip.file(`${siteInfo.name}_dict.opf`, opf);
-        zip.file(`kindle_dict.html`, html);
-        await zip.generateAsync({ type: 'uint8array' }).then(data => {
-          saveAs(new Blob([data], { type: 'application/zip' }), `${siteInfo.name}_dict.zip`);
-          this.step = '下载应该已经开始';
-        });
-      } catch (e) {
-        console.error(e);
-        this.step = '失败';
-        this.addMessage(e.message, 'error');
-      }
+    run() {
+      this.running = true;
+      const runner = new Runner(this.url);
+      runner.addEventListener('message', this.handleRunnerMessage);
+      runner.addEventListener('done', this.handleRunnerDone);
+      runner.addEventListener('error', this.handleRunnerError);
+      runner.run();
     },
-    addMessage(msg: string, cls = '') {
-      this.messages.unshift({ msg, cls });
+    removeRunnerEventListeners(runner: Runner) {
+      runner.removeEventListener('message', this.handleRunnerMessage);
+      runner.removeEventListener('done', this.handleRunnerDone);
+      runner.removeEventListener('error', this.handleRunnerError);
+    },
+    handleRunnerMessage(e: MessageEvent) {
+      this.messages.unshift({
+        message: e.message,
+        level: e.level,
+        helpLink: e.helpLink,
+      });
+    },
+    handleRunnerDone(e: DoneEvent) {
+      saveAs(new Blob([e.data], { type: 'application/zip' }), `${e.siteInfo.name}_dict.zip`);
+      this.removeRunnerEventListeners(e.target as Runner);
+      this.running = false;
+    },
+    handleRunnerError(e: ErrorEvent) {
+      this.removeRunnerEventListeners(e.target as Runner);
+      this.running = false;
     },
   },
 });
