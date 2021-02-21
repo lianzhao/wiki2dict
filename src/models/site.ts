@@ -20,12 +20,15 @@ export interface Site {
 }
 
 export class CommonSite extends HTTPClient implements Site {
+  private apiPath = '';
+
   constructor(baseUrl: string, fetchOptions?: RequestInit) {
     super(baseUrl, fetchOptions);
   }
 
   public async getDescription() {
-    const resp = await this.get('api.php?action=query&meta=siteinfo&format=json');
+    await this.ensureApiPath();
+    const resp = await this.get(`${this.apiPath}?action=query&meta=siteinfo&format=json`);
     return {
       name: resp?.query?.general?.sitename || '',
       url: this.baseUrl,
@@ -54,7 +57,8 @@ export class CommonSite extends HTTPClient implements Site {
   }
 
   public async getPageContent(titles: string[], query?: Record<string, string>) {
-    const url = this.appendQuery('api.php', {
+    await this.ensureApiPath();
+    const url = this.appendQuery(this.apiPath, {
       action: 'query',
       prop: 'revisions',
       rvslots: '*',
@@ -91,8 +95,9 @@ export class CommonSite extends HTTPClient implements Site {
     return result;
   }
 
-  protected queryAllPages(query: Record<string, any>) {
-    const url = this.appendQuery('api.php', {
+  protected async queryAllPages(query: Record<string, any>) {
+    await this.ensureApiPath();
+    const url = this.appendQuery(this.apiPath, {
       action: 'query',
       generator: 'allpages',
       gapnamespace: 0,
@@ -102,6 +107,24 @@ export class CommonSite extends HTTPClient implements Site {
       ...query,
     });
     return this.get(url);
+  }
+
+  protected async ensureApiPath() {
+    if (this.apiPath) {
+      return;
+    }
+    const candidates = ['api.php', 'w/api.php'];
+    for (const path of candidates) {
+      try {
+        await this.get(path);
+        this.apiPath = path;
+        return;
+      } catch (e) {
+        console.warn(`API path '${path}' 似乎不正确`);
+        console.warn(e);
+      }
+    }
+    throw new Error('API path not found');
   }
 }
 
