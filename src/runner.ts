@@ -101,7 +101,7 @@ export default class Runner extends EventTarget {
       this.dispatchEvent(new DoneEvent(siteInfo, data));
     } catch (e) {
       console.error(e);
-      this.emitMessage('任务失败', 'error');
+      this.emitMessage(`任务失败：${e.message}`, 'error');
       this.dispatchEvent(new ErrorEvent(e));
     }
   }
