@@ -10,7 +10,6 @@ function handleRunnerDone(e: DoneEvent) {
   fs.writeFile(`${e.siteInfo.name}_dict.zip`, e.data).catch(e => {
     console.error(e);
   });
-  // saveAs(new Blob([e.data], { type: 'application/zip' }), `${e.siteInfo.name}_dict.zip`);
 }
 
 function handleRunnerError(e: ErrorEvent) {
