@@ -1,4 +1,4 @@
-import { SiteDescription } from './site';
+import { SiteInfo } from './site';
 
 export interface DictEntry {
   key: string;
@@ -87,7 +87,7 @@ const dictTemplate = `
 `;
 const pageBreak = '<mbp:pagebreak/>';
 
-export function formatOpf(site: SiteDescription, date?: Date) {
+export function formatOpf(site: SiteInfo, date?: Date) {
   date = date ?? new Date();
   return opfTemplate.replaceAll('@wikiName', site.name).replaceAll('@date', date.toDateString());
 }
@@ -103,7 +103,7 @@ function formatEntry(entry: DictEntry) {
     .replaceAll('@infl', entry.alternativeKeys?.map(formatIForm).join('') || '');
 }
 
-export function formatDict(site: SiteDescription, entries: DictEntry[]) {
+export function formatDict(site: SiteInfo, entries: DictEntry[]) {
   return dictTemplate
     .replaceAll('@wikiName', site.name)
     .replaceAll('@wikiUrl', site.url)

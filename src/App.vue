@@ -20,7 +20,7 @@
 import Vue from 'vue';
 import parser from 'wtf_wikipedia';
 import { Site } from '@/models/site';
-import Runner, { MessageEvent, DoneEvent } from './runner';
+import run, { Message } from './runner';
 
 function saveAs(blob: Blob, name: string) {
   const a = document.createElement('a');
@@ -39,7 +39,7 @@ export default Vue.extend({
   data() {
     return {
       url: 'https://princeofnothing.fandom.com/wiki/Prince_of_Nothing_Wiki',
-      messages: [] as any[],
+      messages: [] as Message[],
       running: false,
     };
   },
@@ -86,34 +86,17 @@ export default Vue.extend({
       // });
       site.getAllRedirects().then(console.log);
     },
-    run() {
+    async run() {
       this.running = true;
-      const runner = new Runner(this.url);
-      runner.addEventListener('message', this.handleRunnerMessage as any);
-      runner.addEventListener('done', this.handleRunnerDone as any);
-      runner.addEventListener('error', this.handleRunnerError as any);
-      runner.run();
-    },
-    removeRunnerEventListeners(runner: Runner) {
-      runner.removeEventListener('message', this.handleRunnerMessage as any);
-      runner.removeEventListener('done', this.handleRunnerDone as any);
-      runner.removeEventListener('error', this.handleRunnerError as any);
-    },
-    handleRunnerMessage(e: MessageEvent) {
-      this.messages.unshift({
-        message: e.message,
-        level: e.level,
-        helpLink: e.helpLink,
-      });
-    },
-    handleRunnerDone(e: DoneEvent) {
-      saveAs(new Blob([e.data], { type: 'application/zip' }), `${e.siteInfo.name}_dict.zip`);
-      this.removeRunnerEventListeners(e.target as Runner);
-      this.running = false;
-    },
-    handleRunnerError(e: ErrorEvent) {
-      this.removeRunnerEventListeners(e.target as Runner);
-      this.running = false;
+      try {
+        const { siteInfo, data } = await run(this.url, { onMessage: e => this.messages.unshift(e) });
+        saveAs(new Blob([data], { type: 'application/zip' }), `${siteInfo.name}_dict.zip`);
+      } catch (e) {
+        console.error(e);
+        this.messages.unshift({ message: `任务失败：${e.message}`, level: 'error', helpLink: '' });
+      } finally {
+        this.running = false;
+      }
     },
   },
 });

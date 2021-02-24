@@ -1,5 +1,5 @@
 import { HTTPClient } from './httpClient';
-export interface SiteDescription {
+export interface SiteInfo {
   name: string;
   url: string;
 }
@@ -13,7 +13,7 @@ export interface Page {
 type apfilterredir = 'all' | 'nonredirects' | 'redirects';
 
 export interface Site {
-  getDescription(): Promise<SiteDescription>;
+  getDescription(): Promise<SiteInfo>;
   getAllPages(query?: Record<string, any>): Promise<Page[]>;
   getAllRedirects(query?: Record<string, any>): Promise<Page[]>;
   getPageContent(titles: string[], query?: Record<string, string>): Promise<Record<string, string>>;
@@ -135,7 +135,7 @@ export class FandomSite extends CommonSite {
   }
 }
 
-export function createSite(url: string) {
+export function createSite(url: string): Site {
   const { origin, hostname } = new URL(url);
   if (hostname.includes('.fandom.com')) {
     return new FandomSite(origin);
