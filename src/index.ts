@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import run from './runner';
+import run from './run';
 
 const url = process.argv[2];
 try {

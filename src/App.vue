@@ -20,7 +20,7 @@
 import Vue from 'vue';
 import parser from 'wtf_wikipedia';
 import { Site } from '@/models/site';
-import run, { Message } from './runner';
+import run, { Message } from './run';
 
 function saveAs(blob: Blob, name: string) {
   const a = document.createElement('a');
