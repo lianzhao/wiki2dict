@@ -73,11 +73,10 @@ export default async function run(
         continue;
       }
     }
-    if (entry.alternativeKeys) {
-      entry.alternativeKeys.push(from);
-    } else {
-      entry.alternativeKeys = [from];
+    if (!entry.alternativeKeys) {
+      entry.alternativeKeys = new Set();
     }
+    entry.alternativeKeys.add(from);
   }
   if (options?.langlink) {
     emitMessage('开始加载语言链接列表');
@@ -88,11 +87,10 @@ export default async function run(
       const to = langlink.langlinks?.[0]['*'];
       const entry = dict[from];
       if (to && entry) {
-        if (entry.alternativeKeys) {
-          entry.alternativeKeys.push(to);
-        } else {
-          entry.alternativeKeys = [to];
+        if (!entry.alternativeKeys) {
+          entry.alternativeKeys = new Set();
         }
+        entry.alternativeKeys.add(to);
       } else {
         emitMessage(`目标词条${from}不存在。`, 'warn', `${siteInfo.url}/wiki/${from}`);
       }

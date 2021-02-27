@@ -2,7 +2,7 @@ import { SiteInfo } from './site';
 
 export interface DictEntry {
   key: string;
-  alternativeKeys?: string[];
+  alternativeKeys?: Set<string>;
   description: string;
 }
 
