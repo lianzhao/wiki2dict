@@ -49,7 +49,7 @@ export default async function run(
           'warn',
           'https://github.com/spencermountain/wtf_wikipedia/issues',
         );
-        console.log(section);
+        // console.log(section);
         continue;
       }
       dict[key] = { key, description: section };
