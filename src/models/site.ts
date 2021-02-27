@@ -48,7 +48,7 @@ export class CommonSite extends HTTPClient implements Site {
         gapfilterredir: 'redirects',
         prop: 'links',
         ...query,
-        gapcontinue,
+        gapcontinue: encodeURIComponent(gapcontinue),
       });
       if (resp.continue?.plcontinue) {
         console.warn('plcontinue not null, gapcontinue=', gapcontinue, resp);

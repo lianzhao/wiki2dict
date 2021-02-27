@@ -15,7 +15,9 @@ export class HTTPClient {
   }
 
   protected fetch(url: string, opts: RequestInit) {
-    return fetch(`${this.baseUrl}/${url}`, merge(this.fetchOptions, opts)).then(resp => {
+    url = `${this.baseUrl}/${url}`;
+    // console.log(url);
+    return fetch(url, merge(this.fetchOptions, opts)).then(resp => {
       if (!resp.ok) {
         const msg = `HTTP response status error (${resp.status}) while sending ${opts.method} request to ${url}`;
         throw new Error(msg);
