@@ -12,9 +12,12 @@ export interface Message {
 
 const chunkSize = 10;
 
-export default async function run(url: string, options?: { onMessage: (msg: Message) => void }) {
+export default async function run(
+  url: string,
+  options?: Partial<{ langlink: string; onMessage: (msg: Message) => void }>,
+) {
   const emitMessage = (message: string, level = 'info', helpLink = '') => {
-    options?.onMessage({ message, level, helpLink });
+    options?.onMessage?.({ message, level, helpLink });
   };
 
   const site = createSite(url);
@@ -66,7 +69,7 @@ export default async function run(url: string, options?: { onMessage: (msg: Mess
       to = findInRedirectionMap(from);
       entry = dict[to];
       if (!entry) {
-        emitMessage(`目标重定向${to}不存在。源：${from}`, 'warn');
+        emitMessage(`目标重定向${to}不存在。源：${from}`, 'warn', `${siteInfo.url}/wiki/${to}`);
         continue;
       }
     }
@@ -74,6 +77,25 @@ export default async function run(url: string, options?: { onMessage: (msg: Mess
       entry.alternativeKeys.push(from);
     } else {
       entry.alternativeKeys = [from];
+    }
+  }
+  if (options?.langlink) {
+    emitMessage('开始加载语言链接列表');
+    const langlinks = await site.getAllLangLinks(options.langlink);
+    emitMessage(`共${langlinks.length}语言链接`);
+    for (const langlink of langlinks) {
+      const from = langlink.title;
+      const to = langlink.langlinks?.[0]['*'];
+      const entry = dict[from];
+      if (to && entry) {
+        if (entry.alternativeKeys) {
+          entry.alternativeKeys.push(to);
+        } else {
+          entry.alternativeKeys = [to];
+        }
+      } else {
+        emitMessage(`目标词条${from}不存在。`, 'warn', `${siteInfo.url}/wiki/${from}`);
+      }
     }
   }
   emitMessage('开始生成OPF文件');

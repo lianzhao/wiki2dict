@@ -8,6 +8,7 @@ export interface Page {
   pageid: number;
   title: string;
   links?: { title: string }[];
+  langlinks?: (Record<'*', string> & { lang: string })[];
 }
 
 type apfilterredir = 'all' | 'nonredirects' | 'redirects';
@@ -16,6 +17,7 @@ export interface Site {
   getDescription(): Promise<SiteInfo>;
   getAllPages(query?: Record<string, any>): Promise<Page[]>;
   getAllRedirects(query?: Record<string, any>): Promise<Page[]>;
+  getAllLangLinks(lllang: string, query?: Record<string, any>): Promise<Page[]>;
   getPageContent(titles: string[], query?: Record<string, string>): Promise<Record<string, string>>;
 }
 
@@ -58,6 +60,20 @@ export class CommonSite extends HTTPClient implements Site {
     });
   }
 
+  public getAllLangLinks(lllang: string, query?: Record<string, any>) {
+    return this.queryAll(gapcontinue =>
+      this.queryAllPages({
+        lllimit: 'max',
+        gapfilterredir: 'nonredirects',
+        gapfilterlanglinks: 'withlanglinks',
+        lllang,
+        prop: 'langlinks',
+        ...query,
+        gapcontinue: encodeURIComponent(gapcontinue),
+      }),
+    );
+  }
+
   public async getPageContent(titles: string[], query?: Record<string, string>) {
     await this.ensureApiPath();
     const url = this.appendQuery(this.apiPath, {
@@ -75,7 +91,7 @@ export class CommonSite extends HTTPClient implements Site {
     if (resp.query?.pages) {
       Object.values(resp.query.pages).forEach((page: any) => {
         const title = page.title;
-        const content = page.revisions?.[0]?.slots?.main?.content;
+        const content = page.revisions?.[0]?.slots?.main?.content || page.revisions?.[0]?.content;
         if (title && content) {
           result[title] = content;
         }
