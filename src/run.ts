@@ -12,6 +12,10 @@ export interface Message {
 
 const chunkSize = 10;
 
+function matchHTMLTag(str: string) {
+  return str.match(/<[^>]*>/);
+}
+
 export default async function run(
   url: string,
   options?: Partial<{ langlink: string; onMessage: (msg: Message) => void }>,
@@ -32,12 +36,22 @@ export default async function run(
   for (const group of chunk(pages, chunkSize)) {
     const contents = await site.getPageContent(group.map(p => p.title));
     for (const key of Object.keys(contents)) {
-      const section = parser(contents[key]).sections(0);
+      const section = parser(contents[key])
+        .sections(0)
+        ?.text();
       if (!section) {
         emitMessage(`${key}词条获取摘要失败`, 'warn', `${siteInfo.url}/wiki/${key}`);
         continue;
       }
-      dict[key] = { key, description: section.text() };
+      if (matchHTMLTag(section)) {
+        emitMessage(
+          `${key}词条摘要中包含HTML tag，这可能是第三方组件的bug`,
+          'warn',
+          'https://github.com/spencermountain/wtf_wikipedia/issues',
+        );
+        continue;
+      }
+      dict[key] = { key, description: section };
     }
     progress += group.length;
     emitMessage(`已下载${progress}/${pages.length}个词条`);
