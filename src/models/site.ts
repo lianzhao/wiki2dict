@@ -36,7 +36,9 @@ export class CommonSite extends HTTPClient implements Site {
   }
 
   public getAllPages(query?: Record<string, any>) {
-    return this.queryAll(gapcontinue => this.queryAllPages({ gapfilterredir: 'nonredirects', ...query, gapcontinue }));
+    return this.queryAll(gapcontinue =>
+      this.queryAllPages({ gapfilterredir: 'nonredirects', ...query, gapcontinue: encodeURIComponent(gapcontinue) }),
+    );
   }
 
   public getAllRedirects(query?: Record<string, any>) {
