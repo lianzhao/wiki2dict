@@ -96,6 +96,24 @@ export default async function run(
       }
     }
   }
+  emitMessage('开始针对中文的肮脏处理');
+  Object.values(dict).forEach(entry => {
+    const tryAdd = (from: string, to: string) => {
+      if (from === to) {
+        return;
+      }
+      // emitMessage(`${from} -> ${to}`);
+      if (!entry.alternativeKeys) {
+        entry.alternativeKeys = new Set();
+      }
+      entry.alternativeKeys.add(to);
+    };
+    const keys = [entry.key, ...(entry.alternativeKeys || [])];
+    keys.forEach(key => {
+      tryAdd(key, key.replaceAll('•', '·'));
+      tryAdd(key, key.replaceAll('·', '•'));
+    });
+  });
   emitMessage('开始生成OPF文件');
   const opf = formatOpf(siteInfo);
   emitMessage('开始生成HTML文件');

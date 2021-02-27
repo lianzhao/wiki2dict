@@ -100,7 +100,7 @@ function formatEntry(entry: DictEntry) {
   return entryTemplate
     .replaceAll('@word', entry.key)
     .replaceAll('@description', entry.description)
-    .replaceAll('@infl', entry.alternativeKeys?.map(formatIForm).join('') || '');
+    .replaceAll('@infl', [...(entry.alternativeKeys || [])].map(formatIForm).join(''));
 }
 
 export function formatDict(site: SiteInfo, entries: DictEntry[]) {
