@@ -11,8 +11,6 @@ export interface Page {
   langlinks?: (Record<'*', string> & { lang: string })[];
 }
 
-type apfilterredir = 'all' | 'nonredirects' | 'redirects';
-
 export interface Site {
   getDescription(): Promise<SiteInfo>;
   getAllPages(query?: Record<string, any>): Promise<Page[]>;
