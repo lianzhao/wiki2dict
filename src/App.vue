@@ -40,7 +40,7 @@ export default Vue.extend({
   name: 'App',
   data() {
     return {
-      url: '',
+      url: 'https://princeofnothing.fandom.com/wiki/Prince_of_Nothing_Wiki',
       langlink: '',
       messages: [] as Message[],
       running: false,

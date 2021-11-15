@@ -30,6 +30,24 @@ export default async function run(
   emitMessage('开始加载基础信息');
   const siteInfo = await site.getDescription();
   emitMessage(`站点名称：${siteInfo.name}`);
+  emitMessage('开始分析Character list');
+  const characterListPageContent = (await site.getPageContent(['Character_list']))['Character list'];
+  characterListPageContent.split('\n').forEach(row => {
+    // console.log(row);
+    if (!row.startsWith('*')) {
+      return;
+    }
+    const [str1, str2] = row.split(':');
+    const key = str1
+      .substr(1)
+      .trim()
+      .replaceAll(`'''`, '')
+      .replaceAll(`[[`, '')
+      .replaceAll(`]]`, '');
+    const section = parser(str2).text();
+    // console.log(key, section);
+    dict[key] = { key, description: section };
+  });
   emitMessage('开始加载词条列表');
   const pages = await site.getAllPages();
   emitMessage(`共${pages.length}词条`);
