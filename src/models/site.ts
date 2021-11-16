@@ -28,7 +28,12 @@ export class CommonSite extends HTTPClient implements Site {
 
   public async getDescription() {
     await this.ensureApiPath();
-    const resp = await this.get(`${this.apiPath}?action=query&meta=siteinfo&format=json`);
+    const url = this.appendQuery(this.apiPath, {
+      action: 'query',
+      meta: 'siteinfo',
+      format: 'json',
+    });
+    const resp = await this.get(url);
     return {
       name: resp?.query?.general?.sitename || '',
       url: this.baseUrl,
@@ -129,7 +134,7 @@ export class CommonSite extends HTTPClient implements Site {
     if (this.apiPath) {
       return;
     }
-    const candidates = ['api.php', 'w/api.php'];
+    const candidates = ['api.php', 'w/api.php'].flatMap(url => [url, `${url}?origin=*`]);
     for (const path of candidates) {
       try {
         await this.get(path);
