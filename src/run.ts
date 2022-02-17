@@ -11,7 +11,7 @@ export interface Message {
 }
 
 const chunkSize = 10;
-const exclude = /(\(\/)/;
+const exclude = /(\(|\/)/;
 const thumbnailWidth = 300;
 
 function matchHTMLTag(str: string) {
