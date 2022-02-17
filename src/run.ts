@@ -23,7 +23,7 @@ function getFileExtension(file: string) {
 
 export default async function run(
   url: string,
-  options?: Partial<{ langlink: string; downloadImage: boolean; onMessage: (msg: Message) => void }>,
+  options?: Partial<{ langlink: string; downloadImage: boolean; limit: number; onMessage: (msg: Message) => void }>,
 ) {
   const emitMessage = (message: string, level = 'info', helpLink = '') => {
     options?.onMessage?.({ message, level, helpLink });
@@ -36,7 +36,10 @@ export default async function run(
   const siteInfo = await site.getDescription();
   emitMessage(`站点名称：${siteInfo.name}`);
   emitMessage('开始加载词条列表');
-  const pages = await site.getAllPages();
+  let pages = await site.getAllPages();
+  if (options?.limit) {
+    pages = pages.slice(0, options.limit);
+  }
   emitMessage(`共${pages.length}词条`);
   for (const group of chunk(pages, chunkSize)) {
     const contents = await site.getPageContent(group.map(p => p.title));
