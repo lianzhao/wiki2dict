@@ -23,7 +23,12 @@ function getFileExtension(file: string) {
 
 export default async function run(
   url: string,
-  options?: Partial<{ langlink: string; downloadImage: boolean; limit: number; onMessage: (msg: Message) => void }>,
+  options?: Partial<{
+    langlink: string;
+    downloadImage: boolean;
+    maxEntries: number;
+    onMessage: (msg: Message) => void;
+  }>,
 ) {
   const emitMessage = (message: string, level = 'info', helpLink = '') => {
     options?.onMessage?.({ message, level, helpLink });
@@ -37,8 +42,8 @@ export default async function run(
   emitMessage(`站点名称：${siteInfo.name}`);
   emitMessage('开始加载词条列表');
   let pages = await site.getAllPages();
-  if (options?.limit) {
-    pages = pages.slice(0, options.limit);
+  if (options?.maxEntries) {
+    pages = pages.slice(0, options.maxEntries);
   }
   emitMessage(`共${pages.length}词条`);
   for (const group of chunk(pages, chunkSize)) {
@@ -71,7 +76,7 @@ export default async function run(
             .replace('Image:', '')
             .replace(']]', '');
           const index = fileName.indexOf('|'); // xx.jpg|300px
-          if (index) {
+          if (index > 0) {
             fileName = fileName.substring(0, index);
           }
           if (fileName.startsWith('[') || fileName.startsWith('<')) {
@@ -172,7 +177,7 @@ export default async function run(
       const entries = Object.values(dict).filter(e => e.image);
       let downloaded = 0;
       for (const entry of entries) {
-        emitMessage(`download progress ${downloaded}/${entries.length}`);
+        emitMessage(`img download progress ${downloaded}/${entries.length}`);
         if (!entry.image) {
           continue;
         }
