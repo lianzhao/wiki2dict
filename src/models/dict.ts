@@ -103,7 +103,7 @@ function formatEntry(entry: DictEntry) {
     .replaceAll('@word', entry.key)
     .replaceAll('@description', entry.description)
     .replaceAll('@infl', [...(entry.alternativeKeys || [])].map(formatIForm).join(''))
-    .replaceAll('@image', entry.image ? `<img src="images/${entry.image}" alt="${entry.key}" />` : '');
+    .replaceAll('@image', entry.image ? `<img src="images/${entry.image}" alt="${entry.key}" >` : '');
 }
 
 export function formatDict(site: SiteInfo, entries: DictEntry[]) {
