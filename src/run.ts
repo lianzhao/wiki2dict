@@ -11,6 +11,7 @@ export interface Message {
 }
 
 const chunkSize = 10;
+const exclude = /(disambiguation|\/Chapter)/;
 const thumbnailWidth = 300;
 
 function matchHTMLTag(str: string) {
@@ -50,6 +51,10 @@ export default async function run(
   for (const group of chunk(pages, chunkSize)) {
     const contents = await site.getPageContent(group.map(p => p.title));
     for (const key of Object.keys(contents)) {
+      if (exclude.test(key)) {
+        emitMessage(`exclude词条${key}`);
+        continue;
+      }
       const doc = parser(contents[key]);
       const section = doc.sections(0)?.[0]?.text();
       if (!section) {
