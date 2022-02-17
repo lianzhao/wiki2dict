@@ -12,6 +12,7 @@ export interface Message {
 
 const chunkSize = 10;
 const exclude = /(\(\/)/;
+const thumbnailWidth = 300;
 
 function matchHTMLTag(str: string) {
   return str.match(/<[^>]*>/);
@@ -190,7 +191,7 @@ export default async function run(
           emitMessage(`${entry.image} exist, ignore`, 'debug');
         }
         emitMessage(`downloading ${entry.image}`, 'debug');
-        const b = await site.downloadFile(entry.image, { thumbnailWidth: 300 }).catch(e => {
+        const b = await site.downloadFile(entry.image, { thumbnailWidth }).catch(e => {
           emitMessage(`failed to download ${entry.image}, ${e.message}`, 'error');
         });
         if (b) {
