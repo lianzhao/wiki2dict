@@ -17,6 +17,7 @@ export interface Site {
   getAllRedirects(query?: Record<string, any>): Promise<Page[]>;
   getAllLangLinks(lllang: string, query?: Record<string, any>): Promise<Page[]>;
   getPageContent(titles: string[], query?: Record<string, string>): Promise<Record<string, string>>;
+  downloadFile(file: string, options?: Partial<{ thumbnailWidth: number }>): Promise<Blob>
 }
 
 export class CommonSite extends HTTPClient implements Site {
@@ -101,6 +102,14 @@ export class CommonSite extends HTTPClient implements Site {
       });
     }
     return result;
+  }
+
+  public downloadFile(file: string, options?: Partial<{ thumbnailWidth: number }>) {
+    let url = `${this.baseUrl}/wiki/Special:Redirect/file/${file.startsWith('File:') ? file : `File:${file}`}`;
+    if (options?.thumbnailWidth) {
+      url = this.appendQuery(url, { width: options.thumbnailWidth });
+    }
+    return fetch(url, { ...this.fetchOptions, method: 'GET' }).then(resp => resp.blob());
   }
 
   protected async queryAll(getPagesFunc: (gapcontinue: string) => Promise<any>) {

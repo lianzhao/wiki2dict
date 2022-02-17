@@ -16,9 +16,14 @@ function matchHTMLTag(str: string) {
   return str.match(/<[^>]*>/);
 }
 
+function getFileExtension(file: string) {
+  const index = file.lastIndexOf('.');
+  return file.substring(index);
+}
+
 export default async function run(
   url: string,
-  options?: Partial<{ langlink: string; onMessage: (msg: Message) => void }>,
+  options?: Partial<{ langlink: string; downloadImage: boolean; onMessage: (msg: Message) => void }>,
 ) {
   const emitMessage = (message: string, level = 'info', helpLink = '') => {
     options?.onMessage?.({ message, level, helpLink });
@@ -36,9 +41,8 @@ export default async function run(
   for (const group of chunk(pages, chunkSize)) {
     const contents = await site.getPageContent(group.map(p => p.title));
     for (const key of Object.keys(contents)) {
-      const section = parser(contents[key])
-        .sections(0)
-        ?.text();
+      const doc = parser(contents[key]);
+      const section = doc.sections(0)?.[0]?.text();
       if (!section) {
         emitMessage(`${key}词条获取摘要失败`, 'warn', `${siteInfo.url}/wiki/${key}`);
         continue;
@@ -52,7 +56,17 @@ export default async function run(
         // console.log(section);
         continue;
       }
-      dict[key] = { key, description: section };
+      const entry: DictEntry = { key, description: section };
+      if (options?.downloadImage) {
+        const img = doc.image(0);
+        if (img) {
+          entry.image = img
+            .file()
+            .replace('[[File:', '')
+            .replace(']]', '');
+        }
+      }
+      dict[key] = entry;
     }
     progress += group.length;
     emitMessage(`已下载${progress}/${pages.length}个词条`);
@@ -137,6 +151,25 @@ export default async function run(
   const zip = new Zip();
   zip.file(`${siteInfo.name}_dict.opf`, opf);
   zip.file(`kindle_dict.html`, html);
+  if (options?.downloadImage) {
+    const folder = zip.folder('images');
+    if (folder) {
+      for (const entry of Object.values(dict)) {
+        if (!entry.image) {
+          continue;
+        }
+        const ext = getFileExtension(entry.image);
+        const fileName = `${entry.key}${ext}`;
+        emitMessage(`downloading ${entry.image} and save to ${fileName}`);
+        const b = await site.downloadFile(entry.image, { thumbnailWidth: 300 }).catch(e => {
+          emitMessage(`failed to download ${entry.image}, ${e.message}`, 'error');
+        });
+        if (b) {
+          folder.file(fileName, b);
+        }
+      }
+    }
+  }
   const data = await zip.generateAsync({ type: 'uint8array' });
   emitMessage('打包完成');
   return { siteInfo, data };
