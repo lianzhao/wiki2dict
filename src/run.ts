@@ -63,10 +63,22 @@ export default async function run(
       if (options?.downloadImage) {
         const img = doc.image(0);
         if (img) {
-          entry.image = img
+          let fileName = img
             .file()
-            .replace('[[File:', '')
+            .replace('[[', '')
+            .replace('File:', '')
+            .replace('file:', '')
+            .replace('Image:', '')
             .replace(']]', '');
+          const index = fileName.indexOf('|'); // xx.jpg|300px
+          if (index) {
+            fileName = fileName.substring(0, index);
+          }
+          if (fileName.startsWith('[') || fileName.startsWith('<')) {
+            emitMessage(`Invalid file ${fileName} in entry ${entry.key}`, 'debug');
+          } else {
+            entry.image = fileName;
+          }
         }
       }
       dict[key] = entry;
