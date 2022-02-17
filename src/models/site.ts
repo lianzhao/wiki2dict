@@ -1,4 +1,5 @@
 import { HTTPClient } from './httpClient';
+import retry from './retry';
 export interface SiteInfo {
   name: string;
   url: string;
@@ -17,7 +18,7 @@ export interface Site {
   getAllRedirects(query?: Record<string, any>): Promise<Page[]>;
   getAllLangLinks(lllang: string, query?: Record<string, any>): Promise<Page[]>;
   getPageContent(titles: string[], query?: Record<string, string>): Promise<Record<string, string>>;
-  downloadFile(file: string, options?: Partial<{ thumbnailWidth: number }>): Promise<ArrayBuffer>
+  downloadFile(file: string, options?: Partial<{ thumbnailWidth: number }>): Promise<ArrayBuffer>;
 }
 
 export class CommonSite extends HTTPClient implements Site {
@@ -109,7 +110,17 @@ export class CommonSite extends HTTPClient implements Site {
     if (options?.thumbnailWidth) {
       url = this.appendQuery(url, { width: options.thumbnailWidth });
     }
-    return fetch(url, { ...this.fetchOptions, method: 'GET' }).then(resp => resp.arrayBuffer());
+    return retry(
+      () =>
+        fetch(url, { ...this.fetchOptions, method: 'GET' }).then(resp => {
+          if (!resp.ok) {
+            const msg = `HTTP response status error (${resp.status}) while sending ${opts.method} request to ${url}`;
+            throw new Error(msg);
+          }
+          return resp;
+        }),
+      this.retry,
+    ).then(resp => resp.arrayBuffer());
   }
 
   protected async queryAll(getPagesFunc: (gapcontinue: string) => Promise<any>) {
