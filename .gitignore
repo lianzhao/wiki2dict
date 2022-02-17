@@ -2,6 +2,7 @@
 node_modules
 /dist
 built
+*_dict
 *_dict.zip
 *_dict.html
 *.opf
