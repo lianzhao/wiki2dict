@@ -11,6 +11,7 @@ export interface Message {
 }
 
 const chunkSize = 10;
+const exclude = /(\(\/)/;
 
 function matchHTMLTag(str: string) {
   return str.match(/<[^>]*>/);
@@ -49,6 +50,10 @@ export default async function run(
   for (const group of chunk(pages, chunkSize)) {
     const contents = await site.getPageContent(group.map(p => p.title));
     for (const key of Object.keys(contents)) {
+      if (exclude.test(key)) {
+        emitMessage(`exclude词条${key}`);
+        continue;
+      }
       const doc = parser(contents[key]);
       const section = doc.sections(0)?.[0]?.text();
       if (!section) {
