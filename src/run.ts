@@ -157,19 +157,24 @@ export default async function run(
   if (options?.downloadImage) {
     const folder = zip.folder('images');
     if (folder) {
-      for (const entry of Object.values(dict)) {
+      const entries = Object.values(dict).filter(e => e.image);
+      let downloaded = 0;
+      for (const entry of entries) {
+        emitMessage(`download progress ${downloaded}/${entries.length}`);
         if (!entry.image) {
           continue;
         }
-        const ext = getFileExtension(entry.image);
-        const fileName = `${entry.key}${ext}`;
-        emitMessage(`downloading ${entry.image} and save to ${fileName}`);
+        if (folder.file(entry.image)) {
+          emitMessage(`${entry.image} exist, ignore`, 'debug');
+        }
+        emitMessage(`downloading ${entry.image}`, 'debug');
         const b = await site.downloadFile(entry.image, { thumbnailWidth: 300 }).catch(e => {
           emitMessage(`failed to download ${entry.image}, ${e.message}`, 'error');
         });
         if (b) {
-          folder.file(fileName, b);
+          folder.file(entry.image, b);
         }
+        downloaded++;
       }
     }
   }
