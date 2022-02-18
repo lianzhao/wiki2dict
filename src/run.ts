@@ -181,23 +181,23 @@ export default async function run(
     const folder = zip.folder('images');
     if (folder) {
       const entries = Object.values(dict).filter(e => e.image);
+      const imgs = [
+        ...new Set(
+          Object.values(dict)
+            .filter(e => e.image)
+            .map(e => e.image as string),
+        ),
+      ];
       let downloaded = 0;
-      for (const group of chunk(entries, chunkSize)) {
+      for (const group of chunk(imgs, chunkSize)) {
         emitMessage(`img download progress ${downloaded}/${entries.length}`);
-        const toDownload = group.filter(entry => {
-          if (folder.file(entry.image as string)) {
-            emitMessage(`${entry.image} exist, ignore`, 'debug');
-            return false;
-          }
-          return true;
-        });
         const files = await Promise.all(
-          toDownload.map(entry =>
+          group.map(img =>
             site
-              .downloadFile(entry.image as string, { thumbnailWidth })
-              .then(b => [entry, b] as [DictEntry, ArrayBuffer])
+              .downloadFile(img as string, { thumbnailWidth })
+              .then(b => [img, b] as [string, ArrayBuffer])
               .catch(e => {
-                emitMessage(`failed to download ${entry.image}, ${e.message}`, 'error');
+                emitMessage(`failed to download ${img}, ${e.message}`, 'error');
               }),
           ),
         );
@@ -205,8 +205,8 @@ export default async function run(
           if (!f) {
             return;
           }
-          const [entry, b] = f;
-          folder.file(entry.image as string, b);
+          const [img, b] = f;
+          folder.file(img, b);
         });
         downloaded += group.length;
       }
