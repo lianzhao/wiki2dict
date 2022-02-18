@@ -126,6 +126,10 @@ export default async function run(
   };
   for (const redirect of redirects) {
     const from = redirect.title;
+    if (exclude.test(from)) {
+      emitMessage(`exclude重定向${from}`);
+      continue;
+    }
     let to = redirect.links?.[0]?.title || '';
     let entry = dict[to];
     if (!entry) {
