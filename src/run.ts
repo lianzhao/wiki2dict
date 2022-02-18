@@ -11,14 +11,26 @@ export interface Message {
 }
 
 const chunkSize = 10;
+const exclude = /(disambiguation|\/)/;
+const thumbnailWidth = 300;
 
 function matchHTMLTag(str: string) {
   return str.match(/<[^>]*>/);
 }
 
+function getFileExtension(file: string) {
+  const index = file.lastIndexOf('.');
+  return file.substring(index);
+}
+
 export default async function run(
   url: string,
-  options?: Partial<{ langlink: string; onMessage: (msg: Message) => void }>,
+  options?: Partial<{
+    langlink: string;
+    downloadImage: boolean;
+    maxEntries: number;
+    onMessage: (msg: Message) => void;
+  }>,
 ) {
   const emitMessage = (message: string, level = 'info', helpLink = '') => {
     options?.onMessage?.({ message, level, helpLink });
@@ -31,14 +43,20 @@ export default async function run(
   const siteInfo = await site.getDescription();
   emitMessage(`站点名称：${siteInfo.name}`);
   emitMessage('开始加载词条列表');
-  const pages = await site.getAllPages();
+  let pages = await site.getAllPages();
+  if (options?.maxEntries) {
+    pages = pages.slice(0, options.maxEntries);
+  }
   emitMessage(`共${pages.length}词条`);
   for (const group of chunk(pages, chunkSize)) {
     const contents = await site.getPageContent(group.map(p => p.title));
     for (const key of Object.keys(contents)) {
-      const section = parser(contents[key])
-        .sections(0)
-        ?.text();
+      if (exclude.test(key)) {
+        emitMessage(`exclude词条${key}`);
+        continue;
+      }
+      const doc = parser(contents[key]);
+      const section = doc.sections(0)?.[0]?.text();
       if (!section) {
         emitMessage(`${key}词条获取摘要失败`, 'warn', `${siteInfo.url}/wiki/${key}`);
         continue;
@@ -52,7 +70,37 @@ export default async function run(
         // console.log(section);
         continue;
       }
-      dict[key] = { key, description: section };
+      const entry: DictEntry = { key, description: section };
+      if (options?.downloadImage) {
+        let img = (doc.image() || doc.infobox()?.image())?.file();
+        if (!img) {
+          // 尝试从template里找image字段。有可能是infobox
+          for (const t of doc.templates()) {
+            img = (t.json() as any).image;
+            if (img) {
+              break;
+            }
+          }
+        }
+        if (img) {
+          let fileName = img
+            .replace('[[', '')
+            .replace('File:', '')
+            .replace('file:', '')
+            .replace('Image:', '')
+            .replace(']]', '');
+          const index = fileName.indexOf('|'); // xx.jpg|300px
+          if (index > 0) {
+            fileName = fileName.substring(0, index);
+          }
+          if (fileName.startsWith('[') || fileName.startsWith('<')) {
+            emitMessage(`Invalid file ${fileName} in entry ${entry.key}`, 'debug');
+          } else {
+            entry.image = fileName;
+          }
+        }
+      }
+      dict[key] = entry;
     }
     progress += group.length;
     emitMessage(`已下载${progress}/${pages.length}个词条`);
@@ -78,6 +126,10 @@ export default async function run(
   };
   for (const redirect of redirects) {
     const from = redirect.title;
+    if (exclude.test(from)) {
+      emitMessage(`exclude重定向${from}`);
+      continue;
+    }
     let to = redirect.links?.[0]?.title || '';
     let entry = dict[to];
     if (!entry) {
@@ -137,6 +189,41 @@ export default async function run(
   const zip = new Zip();
   zip.file(`${siteInfo.name}_dict.opf`, opf);
   zip.file(`kindle_dict.html`, html);
+  if (options?.downloadImage) {
+    const folder = zip.folder('images');
+    if (folder) {
+      const entries = Object.values(dict).filter(e => e.image);
+      const imgs = [
+        ...new Set(
+          Object.values(dict)
+            .filter(e => e.image)
+            .map(e => e.image as string),
+        ),
+      ];
+      let downloaded = 0;
+      for (const group of chunk(imgs, chunkSize)) {
+        emitMessage(`img download progress ${downloaded}/${entries.length}`);
+        const files = await Promise.all(
+          group.map(img =>
+            site
+              .downloadFile(img, { thumbnailWidth })
+              .then(b => [img, b] as [string, ArrayBuffer])
+              .catch(e => {
+                emitMessage(`failed to download ${img}, ${e.message}`, 'error');
+              }),
+          ),
+        );
+        files.forEach(f => {
+          if (!f) {
+            return;
+          }
+          const [img, b] = f;
+          folder.file(img, b);
+        });
+        downloaded += group.length;
+      }
+    }
+  }
   const data = await zip.generateAsync({ type: 'uint8array' });
   emitMessage('打包完成');
   return { siteInfo, data };

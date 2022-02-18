@@ -4,6 +4,7 @@ export interface DictEntry {
   key: string;
   alternativeKeys?: Set<string>;
   description: string;
+  image?: string;
 }
 
 const opfTemplate = `
@@ -56,6 +57,7 @@ const entryTemplate = `
     <br />
     <sense>
       <b></b>
+      @image
       <description>@description</description>
     </sense>
     <br />
@@ -100,7 +102,8 @@ function formatEntry(entry: DictEntry) {
   return entryTemplate
     .replaceAll('@word', entry.key)
     .replaceAll('@description', entry.description)
-    .replaceAll('@infl', [...(entry.alternativeKeys || [])].map(formatIForm).join(''));
+    .replaceAll('@infl', [...(entry.alternativeKeys || [])].map(formatIForm).join(''))
+    .replaceAll('@image', entry.image ? `<img src="images/${entry.image}" alt="${entry.key}" >` : '');
 }
 
 export function formatDict(site: SiteInfo, entries: DictEntry[]) {
