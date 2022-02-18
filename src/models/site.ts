@@ -106,7 +106,7 @@ export class CommonSite extends HTTPClient implements Site {
   }
 
   public downloadFile(file: string, options?: Partial<{ thumbnailWidth: number }>) {
-    let url = `${this.baseUrl}/wiki/Special:Redirect/file/${file.startsWith('File:') ? file : `File:${file}`}`;
+    let url = `${this.baseUrl}/wiki/Special:Redirect/file/File:${encodeURIComponent(file)}`;
     if (options?.thumbnailWidth) {
       url = this.appendQuery(url, { width: options.thumbnailWidth });
     }
@@ -114,7 +114,7 @@ export class CommonSite extends HTTPClient implements Site {
       () =>
         fetch(url, { ...this.fetchOptions, method: 'GET' }).then(resp => {
           if (!resp.ok) {
-            const msg = `HTTP response status error (${resp.status}) while sending ${opts.method} request to ${url}`;
+            const msg = `HTTP response status error (${resp.status}) while sending request to ${url}`;
             throw new Error(msg);
           }
           return resp;

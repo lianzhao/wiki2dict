@@ -202,7 +202,7 @@ export default async function run(
         const files = await Promise.all(
           group.map(img =>
             site
-              .downloadFile(img as string, { thumbnailWidth })
+              .downloadFile(img, { thumbnailWidth })
               .then(b => [img, b] as [string, ArrayBuffer])
               .catch(e => {
                 emitMessage(`failed to download ${img}, ${e.message}`, 'error');
