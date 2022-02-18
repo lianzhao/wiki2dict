@@ -72,10 +72,18 @@ export default async function run(
       }
       const entry: DictEntry = { key, description: section };
       if (options?.downloadImage) {
-        const img = doc.image(0);
+        let img = (doc.image() || doc.infobox()?.image())?.file();
+        if (!img) {
+          // 尝试从template里找image字段。有可能是infobox
+          for (const t of doc.templates()) {
+            img = (t.json() as any).image;
+            if (img) {
+              break;
+            }
+          }
+        }
         if (img) {
           let fileName = img
-            .file()
             .replace('[[', '')
             .replace('File:', '')
             .replace('file:', '')
